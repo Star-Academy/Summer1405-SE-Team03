@@ -1,91 +1,94 @@
-﻿namespace HelloWorld;
-internal class Program
+﻿using System;
+using System.Linq;
+
+namespace SearchHistoryApp
 {
-    private static void Main(string[] args)
+    public static class AppStrings
     {
-        var item = new List<string>();
-        var dict = new Dictionary<string, int>();
-        var currentIndex = -1;
-        while (true)
+        public const string CommandSearch = "SEARCH";
+        public const string CommandBack = "BACK";
+        public const string CommandForward = "FORWARD";
+        public const string CommandCurrent = "CURRENT";
+        public const string CommandStats = "STATS";
+        public const string CommandUnique = "UNIQUE";
+        public const string CommandExit = "EXIT";
+
+        public const string PrefixCurrent = "current: ";
+        public const string MsgBackEmpty = "back is empty.";
+        public const string MsgForwardEmpty = "forward is empty.";
+        public const string MsgCurrentEmpty = "current is empty.";
+        public const string MsgStatEmpty = "Stat is empty";
+    }
+
+    internal class Program
+    {
+        private static void Main(string[] args)
         {
-            var input = Console.ReadLine();
-            var words = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (words.Length == 1)
-            {
-                switch (words[0])
-                {
-                    case "BACK":
-                    {
-                        if (currentIndex > 0)
-                        {
-                            currentIndex--;
-                            Console.WriteLine("current:" + item[currentIndex]);
-                        }
-                        else
-                        {
-                            Console.WriteLine("back is empty.");
-                        }
+            var historyManager = new SearchHistoryManager();
 
-                        break;
-                    }
-                    case "FORWARD":
-                    {
-                        if (currentIndex < item.Count - 1 && currentIndex >= 0)
+            while (true)
+            {
+                var input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input)) continue;
+
+                var words = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var command = words[0].ToUpper();
+
+                switch (command)
+                {
+                    case AppStrings.CommandSearch:
+                        if (words.Length > 1)
                         {
-                            currentIndex++;
-                            Console.WriteLine("current:" + item[currentIndex]);
+                            var query = words[1];
+                            var current = historyManager.Search(query);
+                            Console.WriteLine(AppStrings.PrefixCurrent + current);
+                        }
+                        break;
+
+                    case AppStrings.CommandBack:
+                        var backResult = historyManager.GoBack();
+                        if (backResult != null)
+                            Console.WriteLine(AppStrings.PrefixCurrent + backResult);
+                        else
+                            Console.WriteLine(AppStrings.MsgBackEmpty);
+                        break;
+
+                    case AppStrings.CommandForward:
+                        var forwardResult = historyManager.GoForward();
+                        if (forwardResult != null)
+                            Console.WriteLine(AppStrings.PrefixCurrent + forwardResult);
+                        else
+                            Console.WriteLine(AppStrings.MsgForwardEmpty);
+                        break;
+
+                    case AppStrings.CommandCurrent:
+                        var currentResult = historyManager.GetCurrent();
+                        if (currentResult != null)
+                            Console.WriteLine(AppStrings.PrefixCurrent + currentResult);
+                        else
+                            Console.WriteLine(AppStrings.MsgCurrentEmpty);
+                        break;
+
+                    case AppStrings.CommandStats:
+                        var top3Words = historyManager.GetTopStats(3);
+                        
+                        if (!top3Words.Any())
+                        {
+                            Console.WriteLine(AppStrings.MsgStatEmpty);
                         }
                         else
                         {
-                            Console.WriteLine("forward is empty.");
+                            foreach (var stat in top3Words)
+                                Console.WriteLine($"{stat.Key}: {stat.Value}");
                         }
                         break;
-                    }
-                    case "CURRENT":
-                    {
-                        if (currentIndex >= 0 && currentIndex < item.Count) Console.WriteLine("current:" + item[currentIndex]);
-                        else
-                        {
-                            Console.WriteLine("current is empty.");
-                        }
+
+                    case AppStrings.CommandUnique:
+                        Console.WriteLine(historyManager.GetUniqueCount());
                         break;
-                    }
-                    case "STATS":
-                    {
-                        if (dict.Count == 0)
-                        {
-                            Console.WriteLine("Stat is empty");
-                            break;
-                        }
-                        var top3 = dict.OrderByDescending(p => p.Value).Take(3);
-                        foreach (var top in top3) Console.WriteLine(top.Key + " " + top.Value);
-                        break;
-                    }
-                    case "UNIQUE":
-                    {
-                        Console.WriteLine(dict.Count);
-                        break;
-                    }
-                    case "EXIT":
-                    {
+
+                    case AppStrings.CommandExit:
                         return;
-                    }
-                }
-            }
-            else
-            {
-                if (words[0] == "SEARCH")
-                {
-                    if (currentIndex < item.Count - 1 && currentIndex >= 0)
-                        item.RemoveRange(currentIndex + 1, item.Count - (currentIndex + 1));
-
-                    item.Add(words[1]);
-                    currentIndex = item.Count - 1;
-                    if (dict.ContainsKey(words[1]))
-                        dict[words[1]]++;
-                    else
-                        dict.Add(words[1], 1);
-                    Console.WriteLine("current:" + item[currentIndex]);
                 }
             }
         }
