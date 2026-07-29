@@ -1,22 +1,15 @@
-﻿using System;
-using System.Text.Json;
-using System.Linq;
-
-namespace HelloWorld
+﻿namespace HelloWorld;
+internal class Program
 {
-    
-
-    class Program
+    private static void Main(string[] args)
     {
-        static void Main(string[] args)
+        var item = new List<string>();
+        var dict = new Dictionary<string, int>();
+        var currentIndex = -1;
+        while (true)
         {
-            List<string> item = new List<string>();
-            Dictionary<string, int> dict = new Dictionary<string, int>();
-            int currentIndex=-1;
-            while (true)
-            {
-              var input = Console.ReadLine();
-              string[] words = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var input = Console.ReadLine();
+            var words = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (words.Length == 1)
             {
                 switch (words[0])
@@ -25,8 +18,12 @@ namespace HelloWorld
                     {
                         if (currentIndex > 0)
                         {
-                            currentIndex--; 
+                            currentIndex--;
                             Console.WriteLine("current:" + item[currentIndex]);
+                        }
+                        else
+                        {
+                            Console.WriteLine("back is empty.");
                         }
 
                         break;
@@ -38,37 +35,41 @@ namespace HelloWorld
                             currentIndex++;
                             Console.WriteLine("current:" + item[currentIndex]);
                         }
-
+                        else
+                        {
+                            Console.WriteLine("forward is empty.");
+                        }
                         break;
                     }
                     case "CURRENT":
                     {
-                        if (currentIndex >= 0)
+                        if (currentIndex >= 0 && currentIndex < item.Count) Console.WriteLine("current:" + item[currentIndex]);
+                        else
                         {
-                            Console.WriteLine("current:" + item[currentIndex]);
+                            Console.WriteLine("current is empty.");
                         }
-
                         break;
                     }
                     case "STATS":
                     {
-                        var top3 = dict.OrderByDescending(p => p.Value).Take(3);
-                        foreach (var top in top3)
+                        if (dict.Count == 0)
                         {
-                            Console.WriteLine(top.Key + " "  + top.Value);
+                            Console.WriteLine("Stat is empty");
+                            break;
                         }
-
+                        var top3 = dict.OrderByDescending(p => p.Value).Take(3);
+                        foreach (var top in top3) Console.WriteLine(top.Key + " " + top.Value);
                         break;
                     }
                     case "UNIQUE":
-                        {
-                            Console.WriteLine(dict.Count);
-                            break;
-                        }
+                    {
+                        Console.WriteLine(dict.Count);
+                        break;
+                    }
                     case "EXIT":
-                        {
+                    {
                         return;
-                        }
+                    }
                 }
             }
             else
@@ -76,9 +77,8 @@ namespace HelloWorld
                 if (words[0] == "SEARCH")
                 {
                     if (currentIndex < item.Count - 1 && currentIndex >= 0)
-                    {
                         item.RemoveRange(currentIndex + 1, item.Count - (currentIndex + 1));
-                    }
+
                     item.Add(words[1]);
                     currentIndex = item.Count - 1;
                     if (dict.ContainsKey(words[1]))
@@ -88,9 +88,6 @@ namespace HelloWorld
                     Console.WriteLine("current:" + item[currentIndex]);
                 }
             }
-            
-        }  
-            }
-            
+        }
     }
 }
