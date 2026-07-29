@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace SearchHistoryApp
+﻿namespace MyConsoleApp
 {
     public class SearchHistoryManager
     {
-        private List<string> _history = new List<string>();
-        private Dictionary<string, int> _searchStats = new Dictionary<string, int>();
+        private readonly List<string> _history = [];
+        private readonly Dictionary<string, int> _searchStats = new();
         private int _currentIndex = -1;
+        
         public string Search(string query)
         {
+            
             if (_currentIndex < _history.Count - 1 && _currentIndex >= 0)
             {
                 _history.RemoveRange(_currentIndex + 1, _history.Count - (_currentIndex + 1));
@@ -60,6 +58,7 @@ namespace SearchHistoryApp
         {
             return _searchStats.OrderByDescending(p => p.Value).Take(count);
         }
+        
         public int GetUniqueCount()
         {
             return _searchStats.Count;
