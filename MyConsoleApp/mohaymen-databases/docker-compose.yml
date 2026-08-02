@@ -18,7 +18,7 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "Your_strong_Password123"
     ports:
-      - "1433:1433"
+      - "5500:1433"
     volumes:
       - mohaymen-mssqldata:/var/opt/mssql
 
