@@ -100,7 +100,6 @@ static void RunSqlServer(string connection, string text, Query query)
         {
             cmd.Dispose();
         }
-
         if (conn.State == ConnectionState.Open)
         {
             conn.Close();
