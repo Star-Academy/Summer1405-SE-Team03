@@ -8,7 +8,6 @@ public class SqlServerCompiler
     {
         StringBuilder message = new StringBuilder();
         StringBuilder paramsBinding = new();
-        message.Append("SQL String: ");
         paramsBinding.Append("Bindings: ");
         message.Append("SELECT ");
         foreach (var column in query._columns)
