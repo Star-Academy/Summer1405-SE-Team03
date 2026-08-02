@@ -10,7 +10,7 @@ public class SqlServerCompiler
         StringBuilder paramsBinding = new();
         paramsBinding.Append("Bindings: ");
         message.Append("SELECT ");
-        foreach (var column in query._columns)
+        foreach (var column in query.Columns)
         {
             message.Append('[').Append(column).Append(']').Append(", ");
         }
@@ -19,14 +19,14 @@ public class SqlServerCompiler
             message.Remove(message.Length - 2, 2);
         }
         message.Append(' ');
-        message.Append("FROM ").Append('[').Append(query._tableName).Append(']').Append(' ');
+        message.Append("FROM ").Append(query.TableName).Append(' ');
         message.Append("WHERE ");
         int index = 0;
         paramsBinding.Append('[');
-        foreach (var conditional_key in query._columnName_value)
+        foreach (var conditionalKey in query.ColumnNameValue)
         {
-            message.Append('[').Append(conditional_key.Key).Append(']').Append(" = @p").Append(index).Append(" AND ");
-            paramsBinding.Append(conditional_key.Value).Append(", ");
+            message.Append('[').Append(conditionalKey.Key).Append(']').Append(" = @p").Append(index).Append(" AND ");
+            paramsBinding.Append(conditionalKey.Value).Append(", ");
             index++;
         }
         if (paramsBinding.Length >= 2)

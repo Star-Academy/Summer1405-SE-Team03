@@ -3,45 +3,44 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using Npgsql;
 
-
 var query = new Query()
     .From("student")
     .Select("studentnumber", "firstname")
     .Where("ismale", false)
-    .Where("grade", 19.24);
+    .Where("grade", 19.24m);
 PostgresCompiler postgres = new PostgresCompiler();
 SqlServerCompiler sqlServer = new SqlServerCompiler();
-//Console.WriteLine(postgres.Compile(query).sql);
-//Console.WriteLine(postgres.Compile(query).binding);
-//Console.WriteLine(sqlServer.Compile(query).sql);
-//Console.WriteLine(sqlServer.Compile(query).binding);
+
 var postgresResult = postgres.Compile(query);
 var sqlserverResult = sqlServer.Compile(query);
-string postgresConnectionString = "Host=localhost;Port=5432;Database=mohaymen;Username=postgres;Password=postgres";
-string sqlServerConnectionString = "Server=localhost,5500;Database=mohaymen;User Id=sa;Password=Your_strong_Password123;TrustServerCertificate=True;";
+string postgresConnectionString = "Host=localhost;Port=5000;Database=test;Username=postgres;Password=postgres";
+string sqlServerConnectionString = "Server=localhost,5500;Database=test;User Id=sa;Password=Your_strong_Password123;TrustServerCertificate=True;";
 RunPostgres(postgresConnectionString, postgres.Compile(query).sql, query);
 RunSqlServer(sqlServerConnectionString, sqlServer.Compile(query).sql, query);
-
 static void RunPostgres(string connection, string text, Query query)
 {
     NpgsqlConnection conn = new NpgsqlConnection(connection);
     NpgsqlCommand? cmd = null;
     NpgsqlDataReader? reader = null;
-    int postgresIndex = 1;
     try
     {
         conn.Open();
-        cmd = new NpgsqlCommand(text, conn);
-        foreach (var param in query._columnName_value)
+
+        using (var schemaCmd = new NpgsqlCommand("SET search_path TO \"TEST-SH\";", conn))
         {
-            cmd.Parameters.AddWithValue(param.Value); 
+            schemaCmd.ExecuteNonQuery();
+        }
+
+        cmd = new NpgsqlCommand(text, conn);
+        foreach (var param in query.ColumnNameValue)
+        {
+            cmd.Parameters.Add(new NpgsqlParameter { Value = param.Value });
         }
 
         reader = cmd.ExecuteReader();
         while (reader.Read())
         {
-            Console.WriteLine($"StudentNumber: {reader["studentnumber"]}, FirstName: {reader["firstname"]}");
-            
+            Console.WriteLine($"Student Number: {reader["studentnumber"]}, Name: {reader["firstname"]}");
         }
     }
     catch (Exception ex)
@@ -78,7 +77,7 @@ static void RunSqlServer(string connection, string text, Query query)
     {
         conn.Open();
         cmd = new SqlCommand(text, conn);
-        foreach (var param in query._columnName_value)
+        foreach (var param in query.ColumnNameValue)
         {
             cmd.Parameters.AddWithValue($"@p{sqlIndex}", param.Value);
             sqlIndex++;
