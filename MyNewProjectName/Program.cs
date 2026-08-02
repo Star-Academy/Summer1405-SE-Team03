@@ -6,22 +6,19 @@ var query = new Query()
     .Where("ismale", false)
     .Where("grade", 19.24m);
 
-ISqlDialect postgresDialect = new PostgresDialect();
-ISqlDialect sqlServerDialect = new SqlServerDialect();
+string pgConnection = "Host=localhost;Port=5000;Database=test;Username=postgres;Password=postgres";
+var pgRunner = new DatabaseRunner(
+    new PostgresStrategy(), 
+    new SqlCompiler(new PostgresDialect()), 
+    pgConnection
+);
 
-ISqlCompiler postgresCompiler = new SqlCompiler(postgresDialect);
-ISqlCompiler sqlServerCompiler = new SqlCompiler(sqlServerDialect);
+string sqlConnection = "Server=localhost,5500;Database=test;User Id=sa;Password=Your_strong_Password123;TrustServerCertificate=True;";
+var sqlRunner = new DatabaseRunner(
+    new SqlServerStrategy(), 
+    new SqlCompiler(new SqlServerDialect()), 
+    sqlConnection
+);
 
-var postgresResult = postgresCompiler.Compile(query);
-var sqlserverResult = sqlServerCompiler.Compile(query);
-
-string postgresConnectionString = "Host=localhost;Port=5000;Database=test;Username=postgres;Password=postgres";
-string sqlServerConnectionString = "Server=localhost,5500;Database=test;User Id=sa;Password=Your_strong_Password123;TrustServerCertificate=True;";
-
-IDatabaseStrategy pgStrategy = new PostgresStrategy();
-var pgRunner = new DatabaseRunner(pgStrategy);
-pgRunner.Run(postgresConnectionString, postgresResult.sql, query);
-
-IDatabaseStrategy sqlStrategy = new SqlServerStrategy();
-var sqlRunner = new DatabaseRunner(sqlStrategy);
-sqlRunner.Run(sqlServerConnectionString, sqlserverResult.sql, query);
+pgRunner.Run(query);
+sqlRunner.Run(query);

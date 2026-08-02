@@ -1,22 +1,28 @@
 ﻿using System;
 using System.Data;
-
 namespace MyNewProjectName;
 
 public class DatabaseRunner
 {
     private readonly IDatabaseStrategy _strategy;
+    private readonly ISqlCompiler _compiler;
+    private readonly string _connectionString;
 
-    public DatabaseRunner(IDatabaseStrategy strategy)
+    public DatabaseRunner(IDatabaseStrategy strategy, ISqlCompiler compiler, string connectionString)
     {
         _strategy = strategy;
+        _compiler = compiler;
+        _connectionString = connectionString;
     }
 
-    public void Run(string connectionString, string sqlText, Query query)
+    public void Run(Query query)
     {
         try
         {
-            using IDbConnection conn = _strategy.CreateConnection(connectionString);
+            var compiledResult = _compiler.Compile(query);
+            string sqlText = compiledResult.sql;
+
+            using IDbConnection conn = _strategy.CreateConnection(_connectionString);
             conn.Open();
 
             _strategy.PreExecuteSetup(conn);
