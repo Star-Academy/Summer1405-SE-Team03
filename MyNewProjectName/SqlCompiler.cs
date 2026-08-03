@@ -20,7 +20,7 @@ public class SqlCompiler : ISqlCompiler
         
         BuildSelectClause(queryTextBuilder, query);
         BuildFromClause(queryTextBuilder, query);
-        string bindings = BuildWhereClause(queryTextBuilder, query);
+        var bindings = BuildWhereClause(queryTextBuilder, query);
 
         return new ISqlCompiler.CompilationResult(queryTextBuilder.ToString(), bindings);
     }
@@ -37,22 +37,22 @@ public class SqlCompiler : ISqlCompiler
         sql.Append(" FROM ").Append(_dialect.Quote(query.TableName!));
     }
 
-    private string BuildWhereClause(StringBuilder sql, Query query)
+    private List<object> BuildWhereClause(StringBuilder sql, Query query)
     {
-        if (!query.WhereClauses.Any()) return "Bindings: []";
+        if (!query.WhereConditions.Any()) return new List<object>();
 
         sql.Append(" WHERE ");
         
-        var processed = ProcessWhereClauses(query.WhereClauses);
+        var processed = ProcessWhereClauses(query.WhereConditions);
 
         sql.Append(string.Join(" AND ", processed.Conditions));
-        return $"Bindings: [{string.Join(", ", processed.BindingValues)}]";
+        return processed.BindingValues; 
     }
     
-    private (List<string> Conditions, List<string> BindingValues) ProcessWhereClauses(List<WhereClause> clauses)
+    private (List<string> Conditions, List<object> BindingValues) ProcessWhereClauses(List<WhereCondition> clauses)
     {
         var conditions = new List<string>();
-        var bindingValues = new List<string>();
+        var bindingValues = new List<object>();
         
         int index = _dialect.ParameterStartIndex;
 
@@ -60,7 +60,8 @@ public class SqlCompiler : ISqlCompiler
         {
             string paramName = _dialect.GetParameterName(index);
             conditions.Add($"{_dialect.Quote(condition.ColumnName)} = {paramName}");
-            bindingValues.Add(condition.Value?.ToString() ?? DBNull.Value.ToString()!);
+            
+            bindingValues.Add(condition.Value ?? DBNull.Value);
             index++;
         }
 

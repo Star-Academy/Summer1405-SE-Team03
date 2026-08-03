@@ -30,7 +30,7 @@ public class PostgresStrategy : IDatabaseStrategy
             throw new InvalidOperationException("Command must be of type NpgsqlCommand.");
         }
 
-        foreach (var parameter in query.WhereClauses)
+        foreach (var parameter in query.WhereConditions)
         {
             npgsqlCommand.Parameters.Add(new NpgsqlParameter { Value = parameter.Value });
         }

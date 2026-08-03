@@ -23,7 +23,7 @@ public class SqlServerStrategy : IDatabaseStrategy
     {
         var sqlCmd = (SqlCommand)cmd;
         int sqlIndex = 0;
-        foreach (var param in query.WhereClauses)
+        foreach (var param in query.WhereConditions)
         {
             sqlCmd.Parameters.AddWithValue($"@p{sqlIndex}", param.Value);
             sqlIndex++;
