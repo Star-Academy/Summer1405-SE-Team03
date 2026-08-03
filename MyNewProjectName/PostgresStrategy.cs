@@ -26,7 +26,7 @@ public class PostgresStrategy : IDatabaseStrategy
     public void AddParameters(IDbCommand cmd, Query query)
     {
         var npgsqlCmd = (NpgsqlCommand)cmd;
-        foreach (var param in query.ColumnNameValue)
+        foreach (var param in query.WhereClauses)
         {
             npgsqlCmd.Parameters.Add(new NpgsqlParameter { Value = param.Value });
         }

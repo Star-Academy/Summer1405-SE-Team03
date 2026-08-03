@@ -6,7 +6,7 @@ var query = new Query()
     .Where("ismale", false)
     .Where("grade", 19.24m);
 
-string pgConnection = "Host=localhost;Port=5000;Database=test;Username=postgres;Password=postgres";
+string pgConnection = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=postgres";
 var pgRunner = new DatabaseRunner(
     new PostgresStrategy(), 
     new SqlCompiler(new PostgresDialect()), 

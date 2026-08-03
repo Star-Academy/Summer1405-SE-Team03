@@ -27,20 +27,17 @@ public class SqlCompiler : ISqlCompiler
         int index = _dialect.ParameterStartIndex;
         var conditions = new List<string>();
         var bindingValues = new List<string>();
-
-        foreach (var condition in query.ColumnNameValue)
+        foreach (var condition in query.WhereClauses)
         {
             string paramName = _dialect.GetParameterName(index);
-            conditions.Add($"{_dialect.Quote(condition.Key)} = {paramName}");
+            conditions.Add($"{_dialect.Quote(condition.ColumnName)} = {paramName}");
             bindingValues.Add(condition.Value.ToString()!);
             
             index++;
         }
 
         sql.Append(string.Join(" AND ", conditions));
-        
         string bindings = $"Bindings: [{string.Join(", ", bindingValues)}]";
-
         return (sql.ToString(), bindings);
     }
 }
