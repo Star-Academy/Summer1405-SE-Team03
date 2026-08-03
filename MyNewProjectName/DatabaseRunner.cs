@@ -24,9 +24,7 @@ public class DatabaseRunner
             
             using IDbConnection connection = _strategy.CreateConnection(_connectionString);
             connection.Open();
-
-            _strategy.PreExecuteSetup(connection);
-
+            
             using IDbCommand command = _strategy.CreateCommand(compiledResult.Sql, connection);
             _strategy.AddParameters(command, query);
 

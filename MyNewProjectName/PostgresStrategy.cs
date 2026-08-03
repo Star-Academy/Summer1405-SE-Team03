@@ -11,12 +11,7 @@ public class PostgresStrategy : IDatabaseStrategy
     {
         return new NpgsqlConnection(connectionString);
     }
-
-    public void PreExecuteSetup(IDbConnection connection)
-    {
-        using var schemaCmd = new NpgsqlCommand("SET search_path TO \"TEST-SH\";", (NpgsqlConnection)connection);
-        schemaCmd.ExecuteNonQuery();
-    }
+    
 
     public IDbCommand CreateCommand(string sqlText, IDbConnection connection)
     {
