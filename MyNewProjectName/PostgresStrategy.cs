@@ -12,23 +12,32 @@ public class PostgresStrategy : IDatabaseStrategy
         return new NpgsqlConnection(connectionString);
     }
 
-    public void PreExecuteSetup(IDbConnection conn)
+    public void PreExecuteSetup(IDbConnection connection)
     {
-        using var schemaCmd = new NpgsqlCommand("SET search_path TO \"TEST-SH\";", (NpgsqlConnection)conn);
+        using var schemaCmd = new NpgsqlCommand("SET search_path TO \"TEST-SH\";", (NpgsqlConnection)connection);
         schemaCmd.ExecuteNonQuery();
     }
 
-    public IDbCommand CreateCommand(string sqlText, IDbConnection conn)
+    public IDbCommand CreateCommand(string sqlText, IDbConnection connection)
     {
-        return new NpgsqlCommand(sqlText, (NpgsqlConnection)conn);
+        if (connection is not NpgsqlConnection npgsqlConnection)
+        {
+            throw new InvalidOperationException("Connection must be of type NpgsqlConnection.");
+        }
+
+        return new NpgsqlCommand(sqlText, npgsqlConnection);
     }
 
     public void AddParameters(IDbCommand cmd, Query query)
     {
-        var npgsqlCmd = (NpgsqlCommand)cmd;
-        foreach (var param in query.WhereClauses)
+        if (cmd is not NpgsqlCommand npgsqlCommand)
         {
-            npgsqlCmd.Parameters.Add(new NpgsqlParameter { Value = param.Value });
+            throw new InvalidOperationException("Command must be of type NpgsqlCommand.");
+        }
+
+        foreach (var parameter in query.WhereClauses)
+        {
+            npgsqlCommand.Parameters.Add(new NpgsqlParameter { Value = parameter.Value });
         }
     }
 }

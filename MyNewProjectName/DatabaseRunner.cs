@@ -22,15 +22,15 @@ public class DatabaseRunner
         {
             var compiledResult = _compiler.Compile(query);
             
-            using IDbConnection conn = _strategy.CreateConnection(_connectionString);
-            conn.Open();
+            using IDbConnection connection = _strategy.CreateConnection(_connectionString);
+            connection.Open();
 
-            _strategy.PreExecuteSetup(conn);
+            _strategy.PreExecuteSetup(connection);
 
-            using IDbCommand cmd = _strategy.CreateCommand(compiledResult.sql, conn);
-            _strategy.AddParameters(cmd, query);
+            using IDbCommand command = _strategy.CreateCommand(compiledResult.Sql, connection);
+            _strategy.AddParameters(command, query);
 
-            using IDataReader reader = cmd.ExecuteReader();
+            using IDataReader reader = command.ExecuteReader();
             
             PrintResults(reader);
         }

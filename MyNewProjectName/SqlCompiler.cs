@@ -13,15 +13,15 @@ public class SqlCompiler : ISqlCompiler
         _dialect = dialect;
     }
 
-    public (string sql, string binding) Compile(Query query)
+    public ISqlCompiler.CompilationResult Compile(Query query)
     {
-        var sql = new StringBuilder();
+        var queryTextBuilder = new StringBuilder();
         
-        BuildSelectClause(sql, query);
-        BuildFromClause(sql, query);
-        string bindings = BuildWhereClause(sql, query);
+        BuildSelectClause(queryTextBuilder, query);
+        BuildFromClause(queryTextBuilder, query);
+        string bindings = BuildWhereClause(queryTextBuilder, query);
 
-        return (sql.ToString(), bindings);
+        return new ISqlCompiler.CompilationResult(queryTextBuilder.ToString(), bindings);
     }
 
     private void BuildSelectClause(StringBuilder sql, Query query)
@@ -57,7 +57,7 @@ public class SqlCompiler : ISqlCompiler
         {
             string paramName = _dialect.GetParameterName(index);
             conditions.Add($"{_dialect.Quote(condition.ColumnName)} = {paramName}");
-            bindingValues.Add(condition.Value.ToString()!);
+            bindingValues.Add(condition.Value?.ToString() ?? DBNull.Value.ToString()!);
             index++;
         }
 

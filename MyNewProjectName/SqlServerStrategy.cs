@@ -12,13 +12,17 @@ public class SqlServerStrategy : IDatabaseStrategy
         return new SqlConnection(connectionString);
     }
 
-    public void PreExecuteSetup(IDbConnection conn)
+    public void PreExecuteSetup(IDbConnection connection)
     {
+        if (connection.State != ConnectionState.Open)
+        {
+            connection.Open();
+        }
     }
 
-    public IDbCommand CreateCommand(string sqlText, IDbConnection conn)
+    public IDbCommand CreateCommand(string sqlText, IDbConnection connection)
     {
-        return new SqlCommand(sqlText, (SqlConnection)conn);
+        return new SqlCommand(sqlText, (SqlConnection)connection);
     }
 
     public void AddParameters(IDbCommand cmd, Query query)

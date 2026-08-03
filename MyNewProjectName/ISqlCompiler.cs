@@ -2,5 +2,6 @@
 
 public interface ISqlCompiler
 {
-    (string sql, string binding) Compile(Query query);
+    public record CompilationResult(string Sql, string Binding);
+    CompilationResult Compile(Query query);
 }
