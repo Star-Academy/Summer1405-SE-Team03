@@ -17,27 +17,50 @@ public class SqlCompiler : ISqlCompiler
     {
         var sql = new StringBuilder();
         
+        BuildSelectClause(sql, query);
+        BuildFromClause(sql, query);
+        string bindings = BuildWhereClause(sql, query);
+
+        return (sql.ToString(), bindings);
+    }
+
+    private void BuildSelectClause(StringBuilder sql, Query query)
+    {
         sql.Append("SELECT ");
-        
         var quotedColumns = query.Columns.Select(c => _dialect.Quote(c));
         sql.Append(string.Join(", ", quotedColumns));
+    }
+    private void BuildFromClause(StringBuilder sql, Query query)
+    {
+        sql.Append(" FROM ").Append(_dialect.Quote(query.TableName!));
+    }
 
-        sql.Append(" FROM ").Append(_dialect.Quote(query.TableName!)).Append(" WHERE ");
+    private string BuildWhereClause(StringBuilder sql, Query query)
+    {
+        if (!query.WhereClauses.Any()) return "Bindings: []";
 
-        int index = _dialect.ParameterStartIndex;
+        sql.Append(" WHERE ");
+        
+        var processed = ProcessWhereClauses(query.WhereClauses);
+
+        sql.Append(string.Join(" AND ", processed.Conditions));
+        return $"Bindings: [{string.Join(", ", processed.BindingValues)}]";
+    }
+    
+    private (List<string> Conditions, List<string> BindingValues) ProcessWhereClauses(List<WhereClause> clauses)
+    {
         var conditions = new List<string>();
         var bindingValues = new List<string>();
-        foreach (var condition in query.WhereClauses)
+        int index = _dialect.ParameterStartIndex;
+
+        foreach (var condition in clauses)
         {
             string paramName = _dialect.GetParameterName(index);
             conditions.Add($"{_dialect.Quote(condition.ColumnName)} = {paramName}");
             bindingValues.Add(condition.Value.ToString()!);
-            
             index++;
         }
 
-        sql.Append(string.Join(" AND ", conditions));
-        string bindings = $"Bindings: [{string.Join(", ", bindingValues)}]";
-        return (sql.ToString(), bindings);
+        return (conditions, bindingValues);
     }
 }

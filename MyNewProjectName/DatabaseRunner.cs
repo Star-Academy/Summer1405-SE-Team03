@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+
 namespace MyNewProjectName;
 
 public class DatabaseRunner
@@ -20,25 +21,30 @@ public class DatabaseRunner
         try
         {
             var compiledResult = _compiler.Compile(query);
-            string sqlText = compiledResult.sql;
-
+            
             using IDbConnection conn = _strategy.CreateConnection(_connectionString);
             conn.Open();
 
             _strategy.PreExecuteSetup(conn);
 
-            using IDbCommand cmd = _strategy.CreateCommand(sqlText, conn);
+            using IDbCommand cmd = _strategy.CreateCommand(compiledResult.sql, conn);
             _strategy.AddParameters(cmd, query);
 
             using IDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                Console.WriteLine($"Student Number: {reader["studentnumber"]}, Name: {reader["firstname"]}");
-            }
+            
+            PrintResults(reader);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"{_strategy.DatabaseName} Error: {ex.Message}");
+        }
+    }
+    
+    private void PrintResults(IDataReader reader)
+    {
+        while (reader.Read())
+        {
+            Console.WriteLine($"Student Number: {reader["studentnumber"]}, Name: {reader["firstname"]}");
         }
     }
 }

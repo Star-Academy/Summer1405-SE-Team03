@@ -8,6 +8,6 @@ public class WhereClause
         Value = value;
     }
 
-    public string ColumnName { get; set; }
-    public object Value { get; set; }
+    public string ColumnName { get; }
+    public object Value { get;}
 }
