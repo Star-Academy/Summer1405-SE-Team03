@@ -1,8 +1,10 @@
 ﻿namespace MyNewProjectName;
 
-public class PostgresDialect : ISqlDialect
+public class PostgresDialect : SqlDialectBase
 {
-    public int ParameterStartIndex => 1;
-    public string Quote(string identifier) => $"\"{identifier}\"";
-    public string GetParameterName(int index) => $"${index}";
+    public PostgresDialect() : base(1) 
+    { 
+    }
+    public override string Quote(string identifier) => $"\"{identifier}\"";
+    public override string GetParameterName(int index) => $"${index}";
 }

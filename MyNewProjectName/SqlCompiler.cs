@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -6,9 +7,9 @@ namespace MyNewProjectName;
 
 public class SqlCompiler : ISqlCompiler
 {
-    private readonly ISqlDialect _dialect;
+    private readonly SqlDialectBase _dialect;
 
-    public SqlCompiler(ISqlDialect dialect)
+    public SqlCompiler(SqlDialectBase dialect)
     {
         _dialect = dialect;
     }
@@ -30,6 +31,7 @@ public class SqlCompiler : ISqlCompiler
         var quotedColumns = query.Columns.Select(c => _dialect.Quote(c));
         sql.Append(string.Join(", ", quotedColumns));
     }
+    
     private void BuildFromClause(StringBuilder sql, Query query)
     {
         sql.Append(" FROM ").Append(_dialect.Quote(query.TableName!));
@@ -51,6 +53,7 @@ public class SqlCompiler : ISqlCompiler
     {
         var conditions = new List<string>();
         var bindingValues = new List<string>();
+        
         int index = _dialect.ParameterStartIndex;
 
         foreach (var condition in clauses)

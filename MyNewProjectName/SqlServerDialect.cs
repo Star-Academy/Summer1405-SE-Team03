@@ -1,8 +1,10 @@
 ﻿namespace MyNewProjectName;
 
-public class SqlServerDialect : ISqlDialect
+public class SqlServerDialect : SqlDialectBase
 {
-    public int ParameterStartIndex => 0;
-    public string Quote(string identifier) => $"[{identifier}]";
-    public string GetParameterName(int index) => $"@p{index}";
+    public SqlServerDialect() : base(0) 
+    { 
+    }
+    public override string Quote(string identifier) => $"[{identifier}]";
+    public override string GetParameterName(int index) => $"@p{index}";
 }
