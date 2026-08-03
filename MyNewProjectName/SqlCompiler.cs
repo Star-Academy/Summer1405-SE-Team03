@@ -25,27 +25,31 @@ public class SqlCompiler : ISqlCompiler
         return new ISqlCompiler.CompilationResult(queryTextBuilder.ToString(), bindings);
     }
 
-    private void BuildSelectClause(StringBuilder sql, Query query)
+    private void BuildSelectClause(StringBuilder queryBuilder, Query query)
     {
-        sql.Append("SELECT ");
+        queryBuilder.Append("SELECT ");
         var quotedColumns = query.Columns.Select(c => _dialect.Quote(c));
-        sql.Append(string.Join(", ", quotedColumns));
+        queryBuilder.Append(string.Join(", ", quotedColumns));
     }
     
-    private void BuildFromClause(StringBuilder sql, Query query)
+    private void BuildFromClause(StringBuilder queryBuilder, Query query)
     {
-        sql.Append(" FROM ").Append(_dialect.Quote(query.TableName!));
+        if (string.IsNullOrWhiteSpace(query.TableName))
+        {
+            throw new InvalidOperationException("Table name cannot be null or empty.");
+        }
+        queryBuilder.Append(" FROM ").Append(_dialect.Quote(query.TableName!));
     }
 
-    private List<object> BuildWhereClause(StringBuilder sql, Query query)
+    private List<object> BuildWhereClause(StringBuilder queryBuilder, Query query)
     {
         if (!query.WhereConditions.Any()) return new List<object>();
 
-        sql.Append(" WHERE ");
+        queryBuilder.Append(" WHERE ");
         
         var processed = ProcessWhereClauses(query.WhereConditions);
 
-        sql.Append(string.Join(" AND ", processed.Conditions));
+        queryBuilder.Append(string.Join(" AND ", processed.Conditions));
         return processed.BindingValues; 
     }
     
