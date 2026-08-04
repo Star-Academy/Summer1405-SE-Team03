@@ -7,9 +7,9 @@ namespace MyNewProjectName;
 
 public class SqlCompiler : ISqlCompiler
 {
-    private readonly SqlDialectBase _dialect;
+    private readonly SqlGrammar _dialect;
 
-    public SqlCompiler(SqlDialectBase dialect)
+    public SqlCompiler(SqlGrammar dialect)
     {
         _dialect = dialect;
     }
@@ -28,7 +28,7 @@ public class SqlCompiler : ISqlCompiler
     private void BuildSelectClause(StringBuilder queryBuilder, Query query)
     {
         queryBuilder.Append("SELECT ");
-        var quotedColumns = query.Columns.Select(c => _dialect.Quote(c));
+        var quotedColumns = query.Columns.Select(c => _dialect.FormatIdentifier(c));
         queryBuilder.Append(string.Join(", ", quotedColumns));
     }
     
@@ -38,7 +38,7 @@ public class SqlCompiler : ISqlCompiler
         {
             throw new InvalidOperationException("Table name cannot be null or empty.");
         }
-        queryBuilder.Append(" FROM ").Append(_dialect.Quote(query.TableName!));
+        queryBuilder.Append(" FROM ").Append(_dialect.FormatIdentifier(query.TableName!));
     }
 
     private List<object> BuildWhereClause(StringBuilder queryBuilder, Query query)
@@ -63,7 +63,7 @@ public class SqlCompiler : ISqlCompiler
         foreach (var condition in clauses)
         {
             string paramName = _dialect.GetParameterName(index);
-            conditions.Add($"{_dialect.Quote(condition.ColumnName)} = {paramName}");
+            conditions.Add($"{_dialect.FormatIdentifier(condition.ColumnName)} = {paramName}");
             
             bindingValues.Add(condition.Value ?? DBNull.Value);
             index++;
