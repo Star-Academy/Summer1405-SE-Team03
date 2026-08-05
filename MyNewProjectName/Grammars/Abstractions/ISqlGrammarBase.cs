@@ -1,4 +1,4 @@
-﻿namespace MyNewProjectName.Grammars;
+﻿namespace MyNewProjectName.Grammars.Abstractions;
 
 public interface ISqlGrammarBase
 {

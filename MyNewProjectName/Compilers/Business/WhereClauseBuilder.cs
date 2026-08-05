@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using MyNewProjectName.Compilers.Processors;
+using MyNewProjectName.Compilers.Abstractions;
 using MyNewProjectName.Core;
 
-namespace MyNewProjectName.Compilers.Builders;
+namespace MyNewProjectName.Compilers.Business;
 public class WhereClauseBuilder(IWhereConditionProcessor conditionProcessor) : IWhereClauseBuilder
 {
     private readonly IWhereConditionProcessor _conditionProcessor = conditionProcessor ?? throw new ArgumentNullException(nameof(conditionProcessor));

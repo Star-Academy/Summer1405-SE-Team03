@@ -1,6 +1,6 @@
 ﻿using MyNewProjectName.Core;
 
-namespace MyNewProjectName.Compilers;
+namespace MyNewProjectName.Compilers.Abstractions;
 
 public interface ISqlCompiler
 {

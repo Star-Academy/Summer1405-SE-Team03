@@ -1,8 +1,9 @@
 using System.Data;
 using MyNewProjectName.Core;
+using MyNewProjectName.Execution.Abstractions;
 using Npgsql;
 
-namespace MyNewProjectName.Execution.Binders;
+namespace MyNewProjectName.Execution.Business;
 
 public class PostgresParameterBinder : IQueryParameterBinder
 {

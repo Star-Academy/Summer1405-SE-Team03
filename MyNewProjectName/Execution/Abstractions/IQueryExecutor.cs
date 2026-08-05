@@ -1,6 +1,6 @@
 using MyNewProjectName.Core;
 
-namespace MyNewProjectName.Execution
+namespace MyNewProjectName.Execution.Abstractions
 {
     public interface IQueryExecutor
     {

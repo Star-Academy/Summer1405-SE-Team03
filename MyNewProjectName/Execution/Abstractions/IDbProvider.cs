@@ -1,8 +1,4 @@
-using MyNewProjectName.Execution.Binders;
-using MyNewProjectName.Execution.Commands;
-using MyNewProjectName.Execution.Connections;
-
-namespace MyNewProjectName;
+namespace MyNewProjectName.Execution.Abstractions;
 
 public interface IDbProvider
 {

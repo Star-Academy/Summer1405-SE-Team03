@@ -1,4 +1,6 @@
-﻿namespace MyNewProjectName.Grammars;
+﻿using MyNewProjectName.Grammars.Abstractions;
+
+namespace MyNewProjectName.Grammars.Business;
 
 public class PostgresGrammar : ISqlGrammar
 {

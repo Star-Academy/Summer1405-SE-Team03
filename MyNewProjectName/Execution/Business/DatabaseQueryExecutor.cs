@@ -1,10 +1,10 @@
-﻿using System.Data;
-using System.Data.Common;
-using MyNewProjectName.Compilers;
+﻿using System.Data.Common;
+using MyNewProjectName.Compilers.Abstractions;
 using MyNewProjectName.Core;
-using MyNewProjectName.Presentation;
+using MyNewProjectName.Execution.Abstractions;
+using MyNewProjectName.Presentation.Abstractions;
 
-namespace MyNewProjectName.Execution
+namespace MyNewProjectName.Execution.Business
 {
     public class DatabaseQueryExecutor(
         IDbProvider dbProvider,

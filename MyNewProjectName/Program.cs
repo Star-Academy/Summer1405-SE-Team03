@@ -1,12 +1,10 @@
-﻿using System;
-using MyNewProjectName;
-using MyNewProjectName.Compilers;
-using MyNewProjectName.Compilers.Builders;
-using MyNewProjectName.Compilers.Processors;
+﻿using MyNewProjectName.Compilers.Business;
 using MyNewProjectName.Core;
-using MyNewProjectName.Execution;
-using MyNewProjectName.Grammars;
-using MyNewProjectName.Presentation;
+using MyNewProjectName.Execution.Business;
+using MyNewProjectName.Grammars.Abstractions;
+using MyNewProjectName.Grammars.Business;
+using MyNewProjectName.Presentation.Abstractions;
+using MyNewProjectName.Presentation.Business;
 
 var query = new Query()
     .From("student")

@@ -1,8 +1,9 @@
 ﻿using System.Text;
+using MyNewProjectName.Compilers.Abstractions;
 using MyNewProjectName.Core;
-using MyNewProjectName.Grammars;
+using MyNewProjectName.Grammars.Abstractions;
 
-namespace MyNewProjectName.Compilers.Builders;
+namespace MyNewProjectName.Compilers.Business;
 
 public class FromClauseBuilder(ISqlGrammar sqlGrammar) : IFromClauseBuilder
 {

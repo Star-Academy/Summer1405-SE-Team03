@@ -1,8 +1,6 @@
-using MyNewProjectName.Execution.Binders;
-using MyNewProjectName.Execution.Commands;
-using MyNewProjectName.Execution.Connections;
+using MyNewProjectName.Execution.Abstractions;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Execution.Business;
 
 public class SqlServerDbProvider : IDbProvider
 {

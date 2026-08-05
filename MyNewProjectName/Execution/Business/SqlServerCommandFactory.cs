@@ -1,7 +1,8 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
+using MyNewProjectName.Execution.Abstractions;
 
-namespace MyNewProjectName.Execution.Commands;
+namespace MyNewProjectName.Execution.Business;
 
 public class SqlServerCommandFactory : IDbCommandFactory
 {

@@ -1,7 +1,8 @@
 using System.Data;
+using MyNewProjectName.Execution.Abstractions;
 using Npgsql;
 
-namespace MyNewProjectName.Execution.Connections;
+namespace MyNewProjectName.Execution.Business;
 
 public class PostgresConnectionFactory : IDbConnectionFactory
 {

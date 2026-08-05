@@ -1,8 +1,9 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using MyNewProjectName.Core;
+using MyNewProjectName.Execution.Abstractions;
 
-namespace MyNewProjectName.Execution.Binders;
+namespace MyNewProjectName.Execution.Business;
 
 public class SqlServerParameterBinder : IQueryParameterBinder
 {

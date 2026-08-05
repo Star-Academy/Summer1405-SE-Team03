@@ -1,7 +1,8 @@
-﻿using MyNewProjectName.Core;
-using MyNewProjectName.Grammars;
+﻿using MyNewProjectName.Compilers.Abstractions;
+using MyNewProjectName.Core;
+using MyNewProjectName.Grammars.Abstractions;
 
-namespace MyNewProjectName.Compilers.Processors;
+namespace MyNewProjectName.Compilers.Business;
 
 public class WhereConditionProcessor(ISqlGrammar sqlGrammar) : IWhereConditionProcessor
 {

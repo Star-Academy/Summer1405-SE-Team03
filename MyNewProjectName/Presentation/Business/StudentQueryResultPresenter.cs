@@ -1,6 +1,7 @@
 using System.Data;
+using MyNewProjectName.Presentation.Abstractions;
 
-namespace MyNewProjectName.Presentation
+namespace MyNewProjectName.Presentation.Business
 {
     public class StudentQueryResultPresenter : IQueryResultPresenter
     {

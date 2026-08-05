@@ -1,7 +1,7 @@
 using System.Data;
 using MyNewProjectName.Core;
 
-namespace MyNewProjectName.Execution.Binders;
+namespace MyNewProjectName.Execution.Abstractions;
 
 public interface IQueryParameterBinder
 {

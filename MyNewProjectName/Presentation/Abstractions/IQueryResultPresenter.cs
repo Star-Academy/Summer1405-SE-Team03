@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace MyNewProjectName.Presentation
+namespace MyNewProjectName.Presentation.Abstractions
 {
     public interface IQueryResultPresenter
     {
