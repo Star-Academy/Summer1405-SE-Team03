@@ -6,21 +6,21 @@ namespace MyNewProjectName
 {
     public class DatabaseQueryExecutor : IQueryExecutor
     {
-        private readonly IDatabaseStrategy _strategy;
+        private readonly IDbProvider _dbProvider;
         private readonly ISqlCompiler _compiler;
-        private readonly string _connectionString;
         private readonly QueryResultPresenter _queryResultPresenter;
+        private readonly DatabaseOptions _databaseoptions;
 
         public DatabaseQueryExecutor(
-            IDatabaseStrategy strategy,
+            IDbProvider dbProvider,
             ISqlCompiler compiler,
-            string connectionString,
-            QueryResultPresenter queryResultPresenter)
+            QueryResultPresenter queryResultPresenter,
+            DatabaseOptions options)
         {
-            _strategy = strategy;
+            _dbProvider = dbProvider;
             _compiler = compiler;
-            _connectionString = connectionString;
             _queryResultPresenter = queryResultPresenter;
+            _databaseoptions = options;
         }
 
         public void ExecuteQuery(Query query)
@@ -29,19 +29,18 @@ namespace MyNewProjectName
             {
                 var compiledResult = _compiler.Compile(query);
 
-                using IDbConnection connection = _strategy.CreateConnection(_connectionString);
+                using IDbConnection connection = _dbProvider.ConnectionFactory.CreateConnection(_databaseoptions.ConnectionString);
                 connection.Open();
 
-                using IDbCommand command = _strategy.CreateCommand(compiledResult.Sql, connection);
-                _strategy.AddParameters(command, query);
+                using IDbCommand command = _dbProvider.CommandFactory.CreateCommand(compiledResult.Sql, connection);
+                _dbProvider.ParameterBinder.AddParameters(command, query);
 
                 using IDataReader reader = command.ExecuteReader();
-
                 _queryResultPresenter.PresentResults(reader);
             }
             catch (DbException dbEx)
             {
-                Console.WriteLine($"[{_strategy.DatabaseName} Storage Error]: {dbEx.Message} (Code: {dbEx.ErrorCode})");
+                Console.WriteLine($"[{_databaseoptions.DatabaseName} Storage Error]: {dbEx.Message} (Code: {dbEx.ErrorCode})");
             }
         }
     }

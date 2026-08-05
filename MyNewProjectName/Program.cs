@@ -1,4 +1,5 @@
-﻿using MyNewProjectName;
+﻿using System;
+using MyNewProjectName;
 
 var query = new Query()
     .From("student")
@@ -8,24 +9,24 @@ var query = new Query()
 
 QueryResultPresenter presenter = new StudentQueryResultPresenter();
 
-string pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
-                      ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
-
+var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
+                   ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
 
 var pgRunner = new DatabaseQueryExecutor(
-    new PostgresStrategy(), 
+    new PostgresDbProvider(), 
     new SqlCompiler(new PostgresGrammar()), 
-    pgConnection,
-    presenter
+    presenter,
+    new DatabaseOptions(pgConnection, "PostgreSQL")
 );
 
-string sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION") 
-                       ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
+var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION") 
+                    ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
+
 var sqlRunner = new DatabaseQueryExecutor(
-    new SqlServerStrategy(), 
+    new SqlServerDbProvider(), 
     new SqlCompiler(new SqlServerGrammar()), 
-    sqlConnection,
-    presenter
+    presenter,
+    new DatabaseOptions(sqlConnection, "SQL Server")
 );
 
 pgRunner.ExecuteQuery(query);
