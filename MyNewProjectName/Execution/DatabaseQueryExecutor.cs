@@ -11,7 +11,7 @@ namespace MyNewProjectName.Execution
         private readonly IDbProvider _dbProvider;
         private readonly ISqlCompiler _compiler;
         private readonly IQueryResultPresenter _queryResultPresenter;
-        private readonly DatabaseOptions _databaseoptions;
+        private readonly DatabaseOptions _databaseOptions;
 
         public DatabaseQueryExecutor(
             IDbProvider dbProvider,
@@ -22,7 +22,7 @@ namespace MyNewProjectName.Execution
             _dbProvider = dbProvider;
             _compiler = compiler;
             _queryResultPresenter = queryResultPresenter;
-            _databaseoptions = options;
+            _databaseOptions = options;
         }
 
         public void ExecuteQuery(Query query)
@@ -31,7 +31,7 @@ namespace MyNewProjectName.Execution
             {
                 var compiledResult = _compiler.Compile(query);
 
-                using IDbConnection connection = _dbProvider.ConnectionFactory.CreateConnection(_databaseoptions.ConnectionString);
+                using IDbConnection connection = _dbProvider.ConnectionFactory.CreateConnection(_databaseOptions.ConnectionString);
                 connection.Open();
 
                 using IDbCommand command = _dbProvider.CommandFactory.CreateCommand(compiledResult.Sql, connection);
@@ -42,7 +42,7 @@ namespace MyNewProjectName.Execution
             }
             catch (DbException dbEx)
             {
-                Console.WriteLine($"[{_databaseoptions.DatabaseName} Storage Error]: {dbEx.Message} (Code: {dbEx.ErrorCode})");
+                Console.WriteLine($"[{_databaseOptions.DatabaseName} Storage Error]: {dbEx.Message} (Code: {dbEx.ErrorCode})");
             }
         }
     }
