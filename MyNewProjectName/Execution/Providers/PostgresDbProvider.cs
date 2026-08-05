@@ -1,3 +1,7 @@
+using MyNewProjectName.Execution.Binders;
+using MyNewProjectName.Execution.Commands;
+using MyNewProjectName.Execution.Connections;
+
 namespace MyNewProjectName;
 
 public class PostgresDbProvider : IDbProvider

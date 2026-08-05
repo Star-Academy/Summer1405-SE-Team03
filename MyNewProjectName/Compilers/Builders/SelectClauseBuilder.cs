@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
+using MyNewProjectName.Core;
+using MyNewProjectName.Grammars;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Compilers.Builders;
 
 public class SelectClauseBuilder(ISqlGrammar sqlGrammar) : ISelectClauseBuilder
 {

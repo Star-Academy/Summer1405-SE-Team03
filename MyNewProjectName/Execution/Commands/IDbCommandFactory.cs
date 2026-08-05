@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Execution.Commands;
 
 public interface IDbCommandFactory
 {

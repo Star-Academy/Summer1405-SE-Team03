@@ -1,4 +1,4 @@
-﻿namespace MyNewProjectName;
+﻿namespace MyNewProjectName.Core;
 public class Query
 {
     public string TableName { get; private set; }

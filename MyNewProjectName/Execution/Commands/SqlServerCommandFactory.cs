@@ -1,7 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Execution.Commands;
 
 public class SqlServerCommandFactory : IDbCommandFactory
 {

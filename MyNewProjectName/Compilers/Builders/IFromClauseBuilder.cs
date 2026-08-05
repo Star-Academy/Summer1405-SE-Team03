@@ -1,6 +1,7 @@
 ﻿using System.Text;
+using MyNewProjectName.Core;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Compilers.Builders;
 
 public interface IFromClauseBuilder
 {

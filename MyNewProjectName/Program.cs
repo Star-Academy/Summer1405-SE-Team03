@@ -1,5 +1,12 @@
 ﻿using System;
 using MyNewProjectName;
+using MyNewProjectName.Compilers;
+using MyNewProjectName.Compilers.Builders;
+using MyNewProjectName.Compilers.Processors;
+using MyNewProjectName.Core;
+using MyNewProjectName.Execution;
+using MyNewProjectName.Grammars;
+using MyNewProjectName.Presentation;
 
 var query = new Query()
     .From("student")
@@ -7,19 +14,10 @@ var query = new Query()
     .Where("ismale", false)
     .Where("grade", 19.24m);
 
-QueryResultPresenter presenter = new StudentQueryResultPresenter();
-static SqlCompiler CreateCompiler(ISqlGrammar grammar)
-{
-    var selectBuilder = new SelectClauseBuilder(grammar);
-    var fromBuilder = new FromClauseBuilder(grammar);
-    var conditionProcessor = new WhereConditionProcessor(grammar);
-    var whereBuilder = new WhereClauseBuilder(conditionProcessor);
-    
-    return new SqlCompiler(selectBuilder, fromBuilder, whereBuilder);
-}
+IQueryResultPresenter presenter = new StudentQueryResultPresenter();
 
-string pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
-                      ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
+var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
+                   ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
 
 var pgRunner = new DatabaseQueryExecutor(
     new PostgresDbProvider(),
@@ -28,8 +26,8 @@ var pgRunner = new DatabaseQueryExecutor(
     new DatabaseOptions(pgConnection, "PostgreSQL")
 );
 
-string sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION") 
-                       ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
+var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION") 
+                    ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
                        
 var sqlRunner = new DatabaseQueryExecutor(
     new SqlServerDbProvider(), 
@@ -40,3 +38,14 @@ var sqlRunner = new DatabaseQueryExecutor(
 
 pgRunner.ExecuteQuery(query);
 sqlRunner.ExecuteQuery(query);
+return;
+
+static SqlCompiler CreateCompiler(ISqlGrammar grammar)
+{
+    var selectBuilder = new SelectClauseBuilder(grammar);
+    var fromBuilder = new FromClauseBuilder(grammar);
+    var conditionProcessor = new WhereConditionProcessor(grammar);
+    var whereBuilder = new WhereClauseBuilder(conditionProcessor);
+    
+    return new SqlCompiler(selectBuilder, fromBuilder, whereBuilder);
+}

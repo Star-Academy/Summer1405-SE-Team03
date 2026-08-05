@@ -1,7 +1,8 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
+using MyNewProjectName.Core;
+using MyNewProjectName.Grammars;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Compilers.Builders;
 
 public class FromClauseBuilder(ISqlGrammar sqlGrammar) : IFromClauseBuilder
 {

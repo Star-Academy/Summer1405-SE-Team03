@@ -1,4 +1,4 @@
-﻿namespace MyNewProjectName;
+﻿namespace MyNewProjectName.Grammars;
 
 public class SqlServerGrammar : ISqlGrammar
 {

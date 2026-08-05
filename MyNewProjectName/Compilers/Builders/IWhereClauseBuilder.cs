@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
+using MyNewProjectName.Core;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Compilers.Builders;
 
 public interface IWhereClauseBuilder
 {

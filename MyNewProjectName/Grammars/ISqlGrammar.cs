@@ -1,6 +1,6 @@
-namespace MyNewProjectName;
+namespace MyNewProjectName.Grammars;
 
-public interface ISqlGrammar : SqlGrammarBase
+public interface ISqlGrammar : ISqlGrammarBase
 {
     int ParameterStartIndex { get; }
 }

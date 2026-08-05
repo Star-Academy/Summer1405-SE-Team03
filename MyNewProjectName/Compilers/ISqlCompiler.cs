@@ -1,4 +1,6 @@
-﻿namespace MyNewProjectName;
+﻿using MyNewProjectName.Core;
+
+namespace MyNewProjectName.Compilers;
 
 public interface ISqlCompiler
 {

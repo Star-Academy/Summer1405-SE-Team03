@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MyNewProjectName.Core;
+using MyNewProjectName.Grammars;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Compilers.Processors;
 
 public class WhereConditionProcessor(ISqlGrammar sqlGrammar) : IWhereConditionProcessor
 {

@@ -1,9 +1,8 @@
-using System;
 using System.Data;
 
-namespace MyNewProjectName
+namespace MyNewProjectName.Presentation
 {
-    public class StudentQueryResultPresenter : QueryResultPresenter
+    public class StudentQueryResultPresenter : IQueryResultPresenter
     {
         public void PresentResults(IDataReader reader)
         {

@@ -1,4 +1,6 @@
-namespace MyNewProjectName
+using MyNewProjectName.Core;
+
+namespace MyNewProjectName.Execution
 {
     public interface IQueryExecutor
     {

@@ -1,7 +1,8 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
+using MyNewProjectName.Compilers.Builders;
+using MyNewProjectName.Core;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Compilers;
 
 public class SqlCompiler(
     ISelectClauseBuilder selectClauseBuilder,

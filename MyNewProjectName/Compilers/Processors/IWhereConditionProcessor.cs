@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using MyNewProjectName.Core;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Compilers.Processors;
 
 public interface IWhereConditionProcessor
 {

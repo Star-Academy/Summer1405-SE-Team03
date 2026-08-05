@@ -1,8 +1,8 @@
 using System.Data;
 
-namespace MyNewProjectName
+namespace MyNewProjectName.Presentation
 {
-    public interface QueryResultPresenter
+    public interface IQueryResultPresenter
     {
         void PresentResults(IDataReader reader);
     }

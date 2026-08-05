@@ -1,7 +1,7 @@
 using System.Data;
 using Npgsql;
 
-namespace MyNewProjectName;
+namespace MyNewProjectName.Execution.Connections;
 
 public class PostgresConnectionFactory : IDbConnectionFactory
 {

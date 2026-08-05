@@ -1,20 +1,22 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
+using MyNewProjectName.Compilers;
+using MyNewProjectName.Core;
+using MyNewProjectName.Presentation;
 
-namespace MyNewProjectName
+namespace MyNewProjectName.Execution
 {
     public class DatabaseQueryExecutor : IQueryExecutor
     {
         private readonly IDbProvider _dbProvider;
         private readonly ISqlCompiler _compiler;
-        private readonly QueryResultPresenter _queryResultPresenter;
+        private readonly IQueryResultPresenter _queryResultPresenter;
         private readonly DatabaseOptions _databaseoptions;
 
         public DatabaseQueryExecutor(
             IDbProvider dbProvider,
             ISqlCompiler compiler,
-            QueryResultPresenter queryResultPresenter,
+            IQueryResultPresenter queryResultPresenter,
             DatabaseOptions options)
         {
             _dbProvider = dbProvider;

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace MyNewProjectName;
+﻿namespace MyNewProjectName.Core;
 
 public class CompiledQuery(string sql, IList<object> bindings)
 {
