@@ -1,74 +1,23 @@
 ﻿using System;
 using System.Text;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace MyNewProjectName;
 
-public class SqlCompiler : ISqlCompiler
+public class SqlCompiler(
+    ISelectClauseBuilder selectClauseBuilder,
+    IFromClauseBuilder fromClauseBuilder,
+    IWhereClauseBuilder whereClauseBuilder) : ISqlCompiler
 {
-    private readonly ISqlGrammar _dialect;
+    private readonly ISelectClauseBuilder _selectClauseBuilder = selectClauseBuilder ?? throw new ArgumentNullException(nameof(selectClauseBuilder));
+    private readonly IFromClauseBuilder _fromClauseBuilder = fromClauseBuilder ?? throw new ArgumentNullException(nameof(fromClauseBuilder));
+    private readonly IWhereClauseBuilder _whereClauseBuilder = whereClauseBuilder ?? throw new ArgumentNullException(nameof(whereClauseBuilder));
 
-    public SqlCompiler(ISqlGrammar dialect)
-    {
-        _dialect = dialect;
-    }
-
-    public ISqlCompiler.CompilationResult Compile(Query query)
+    public CompiledQuery Compile(Query query)
     {
         var queryTextBuilder = new StringBuilder();
-        
-        BuildSelectClause(queryTextBuilder, query);
-        BuildFromClause(queryTextBuilder, query);
-        var bindings = BuildWhereClause(queryTextBuilder, query);
-
-        return new ISqlCompiler.CompilationResult(queryTextBuilder.ToString(), bindings);
-    }
-
-    private void BuildSelectClause(StringBuilder queryBuilder, Query query)
-    {
-        queryBuilder.Append("SELECT ");
-        var quotedColumns = query.Columns.Select(c => _dialect.FormatIdentifier(c));
-        queryBuilder.Append(string.Join(", ", quotedColumns));
-    }
-    
-    private void BuildFromClause(StringBuilder queryBuilder, Query query)
-    {
-        if (string.IsNullOrWhiteSpace(query.TableName))
-        {
-            throw new InvalidOperationException("Table name cannot be null or empty.");
-        }
-        queryBuilder.Append(" FROM ").Append(_dialect.FormatIdentifier(query.TableName!));
-    }
-
-    private List<object> BuildWhereClause(StringBuilder queryBuilder, Query query)
-    {
-        if (!query.WhereConditions.Any()) return new List<object>();
-
-        queryBuilder.Append(" WHERE ");
-        
-        var processed = ProcessWhereClauses(query.WhereConditions);
-
-        queryBuilder.Append(string.Join(" AND ", processed.Conditions));
-        return processed.BindingValues; 
-    }
-    
-    private (List<string> Conditions, List<object> BindingValues) ProcessWhereClauses(List<WhereCondition> clauses)
-    {
-        var conditions = new List<string>();
-        var bindingValues = new List<object>();
-        
-        int index = _dialect.ParameterStartIndex;
-
-        foreach (var condition in clauses)
-        {
-            string paramName = _dialect.GetParameterName(index);
-            conditions.Add($"{_dialect.FormatIdentifier(condition.ColumnName)} = {paramName}");
-            
-            bindingValues.Add(condition.Value ?? DBNull.Value);
-            index++;
-        }
-
-        return (conditions, bindingValues);
+        _selectClauseBuilder.Build(queryTextBuilder, query);
+        _fromClauseBuilder.Build(queryTextBuilder, query);
+        var bindings = _whereClauseBuilder.Build(queryTextBuilder, query);
+        return new CompiledQuery(queryTextBuilder.ToString(), bindings);
     }
 }

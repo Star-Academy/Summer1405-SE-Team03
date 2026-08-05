@@ -8,25 +8,34 @@ var query = new Query()
     .Where("grade", 19.24m);
 
 QueryResultPresenter presenter = new StudentQueryResultPresenter();
+static SqlCompiler CreateCompiler(ISqlGrammar grammar)
+{
+    var selectBuilder = new SelectClauseBuilder(grammar);
+    var fromBuilder = new FromClauseBuilder(grammar);
+    var conditionProcessor = new WhereConditionProcessor(grammar);
+    var whereBuilder = new WhereClauseBuilder(conditionProcessor);
+    
+    return new SqlCompiler(selectBuilder, fromBuilder, whereBuilder);
+}
 
-var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
-                   ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
+string pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
+                      ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
 
 var pgRunner = new DatabaseQueryExecutor(
-    new PostgresDbProvider(), 
-    new SqlCompiler(new PostgresGrammar()), 
-    presenter,
-    new DatabaseOptions(pgConnection, "PostgreSQL")
+    new PostgresStrategy(), 
+    CreateCompiler(new PostgresGrammar()),
+    pgConnection,
+    presenter
 );
 
-var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION") 
-                    ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
-
+string sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION") 
+                       ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
+                       
 var sqlRunner = new DatabaseQueryExecutor(
-    new SqlServerDbProvider(), 
-    new SqlCompiler(new SqlServerGrammar()), 
-    presenter,
-    new DatabaseOptions(sqlConnection, "SQL Server")
+    new SqlServerStrategy(), 
+    CreateCompiler(new SqlServerGrammar()),
+    sqlConnection,
+    presenter
 );
 
 pgRunner.ExecuteQuery(query);
