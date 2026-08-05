@@ -1,6 +1,6 @@
 ﻿namespace MyNewProjectName;
 
-public class PostgresGrammar : SqlGrammar
+public class PostgresGrammar : ISqlGrammar
 {
     public int ParameterStartIndex => 1;
 

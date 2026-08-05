@@ -4,7 +4,7 @@ using System.Data.Common;
 
 namespace MyNewProjectName
 {
-    public class DatabaseQueryExecutor : QueryExecutor
+    public class DatabaseQueryExecutor : IQueryExecutor
     {
         private readonly IDatabaseStrategy _strategy;
         private readonly ISqlCompiler _compiler;

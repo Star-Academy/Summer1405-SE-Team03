@@ -1,6 +1,6 @@
 ﻿namespace MyNewProjectName;
 
-public class SqlServerGrammar : SqlGrammar
+public class SqlServerGrammar : ISqlGrammar
 {
     public int ParameterStartIndex => 0;
 

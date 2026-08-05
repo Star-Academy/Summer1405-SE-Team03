@@ -1,6 +1,6 @@
 namespace MyNewProjectName
 {
-    public interface QueryExecutor
+    public interface IQueryExecutor
     {
         void ExecuteQuery(Query query);
     }

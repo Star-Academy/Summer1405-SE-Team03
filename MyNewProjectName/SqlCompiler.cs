@@ -7,9 +7,9 @@ namespace MyNewProjectName;
 
 public class SqlCompiler : ISqlCompiler
 {
-    private readonly SqlGrammar _dialect;
+    private readonly ISqlGrammar _dialect;
 
-    public SqlCompiler(SqlGrammar dialect)
+    public SqlCompiler(ISqlGrammar dialect)
     {
         _dialect = dialect;
     }
