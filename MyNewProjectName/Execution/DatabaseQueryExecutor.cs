@@ -6,43 +6,31 @@ using MyNewProjectName.Presentation;
 
 namespace MyNewProjectName.Execution
 {
-    public class DatabaseQueryExecutor : IQueryExecutor
+    public class DatabaseQueryExecutor(
+        IDbProvider dbProvider,
+        ISqlCompiler compiler,
+        IQueryResultPresenter queryResultPresenter,
+        DatabaseOptions options)
+        : IQueryExecutor
     {
-        private readonly IDbProvider _dbProvider;
-        private readonly ISqlCompiler _compiler;
-        private readonly IQueryResultPresenter _queryResultPresenter;
-        private readonly DatabaseOptions _databaseOptions;
-
-        public DatabaseQueryExecutor(
-            IDbProvider dbProvider,
-            ISqlCompiler compiler,
-            IQueryResultPresenter queryResultPresenter,
-            DatabaseOptions options)
-        {
-            _dbProvider = dbProvider;
-            _compiler = compiler;
-            _queryResultPresenter = queryResultPresenter;
-            _databaseOptions = options;
-        }
-
         public void ExecuteQuery(Query query)
         {
             try
             {
-                var compiledResult = _compiler.Compile(query);
+                var compiledResult = compiler.Compile(query);
 
-                using IDbConnection connection = _dbProvider.ConnectionFactory.CreateConnection(_databaseOptions.ConnectionString);
+                using var connection = dbProvider.ConnectionFactory.CreateConnection(options.ConnectionString);
                 connection.Open();
 
-                using IDbCommand command = _dbProvider.CommandFactory.CreateCommand(compiledResult.Sql, connection);
-                _dbProvider.ParameterBinder.AddParameters(command, query);
+                using var command = dbProvider.CommandFactory.CreateCommand(compiledResult.Sql, connection);
+                dbProvider.ParameterBinder.AddParameters(command, query);
 
-                using IDataReader reader = command.ExecuteReader();
-                _queryResultPresenter.PresentResults(reader);
+                using var reader = command.ExecuteReader();
+                queryResultPresenter.PresentResults(reader);
             }
             catch (DbException dbEx)
             {
-                Console.WriteLine($"[{_databaseOptions.DatabaseName} Storage Error]: {dbEx.Message} (Code: {dbEx.ErrorCode})");
+                Console.WriteLine($"[{options.DatabaseName} Storage Error]: {dbEx.Message} (Code: {dbEx.ErrorCode})");
             }
         }
     }
