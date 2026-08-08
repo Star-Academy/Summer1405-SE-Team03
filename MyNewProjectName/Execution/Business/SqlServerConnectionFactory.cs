@@ -4,7 +4,7 @@ using MyNewProjectName.Execution.Abstractions;
 
 namespace MyNewProjectName.Execution.Business;
 
-public class SqlServerConnectionFactory(string connectionString) : IDbConnectionFactory
+internal sealed class SqlServerConnectionFactory(string connectionString) : IDbConnectionFactory
 {
     public IDbConnection CreateConnection() => new SqlConnection(connectionString);
 }

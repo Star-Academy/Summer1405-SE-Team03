@@ -2,7 +2,7 @@
 
 namespace MyNewProjectName.Grammars.Business;
 
-public class SqlServerGrammar : IDatabaseSpecificSyntaxFormatter
+internal sealed class SqlServerGrammar : IDatabaseSpecificSyntaxFormatter
 {
     public int ParameterStartIndex => 0;
 

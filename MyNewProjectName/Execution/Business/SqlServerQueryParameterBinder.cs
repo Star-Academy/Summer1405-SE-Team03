@@ -5,7 +5,7 @@ using MyNewProjectName.Execution.Abstractions;
 
 namespace MyNewProjectName.Execution.Business;
 
-public class SqlServerQueryParameterBinder : IQueryParameterBinder
+internal sealed class SqlServerQueryParameterBinder : IQueryParameterBinder
 {
     public void AddParameters(IDbCommand dbCommand, Query query)
     {

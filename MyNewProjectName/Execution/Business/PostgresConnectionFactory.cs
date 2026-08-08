@@ -4,7 +4,7 @@ using Npgsql;
 
 namespace MyNewProjectName.Execution.Business;
 
-public class PostgresConnectionFactory(string connectionString) : IDbConnectionFactory
+internal sealed class PostgresConnectionFactory(string connectionString) : IDbConnectionFactory
 {
     public IDbConnection CreateConnection() => new NpgsqlConnection(connectionString);
 }
