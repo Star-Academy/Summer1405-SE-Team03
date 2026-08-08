@@ -1,10 +1,18 @@
+using System;
 using System.Data;
 using MyNewProjectName.Execution.Abstractions;
 using Npgsql;
 
 namespace MyNewProjectName.Execution.Business;
 
-internal sealed class PostgresConnectionFactory(string connectionString) : IDbConnectionFactory
+internal sealed class PostgresConnectionFactory : IDbConnectionFactory
 {
-    public IDbConnection CreateConnection() => new NpgsqlConnection(connectionString);
+    private readonly string _connectionString;
+
+    public PostgresConnectionFactory(string connectionString)
+    {
+        _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+    }
+
+    public IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);
 }

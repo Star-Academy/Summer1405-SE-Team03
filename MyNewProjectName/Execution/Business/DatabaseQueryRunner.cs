@@ -9,30 +9,30 @@ namespace MyNewProjectName.Execution.Business;
 
 internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-    private readonly IQueryParameterBinder _parameterBinder;
-    private readonly IQueryResultPresenter _presenter;
+    private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly IQueryParameterBinder _queryParameterBinder;
+    private readonly IQueryResultPresenter _queryResultPresenter;
 
     public DatabaseQueryRunner(
         IDbConnectionFactory connectionFactory,
         IQueryParameterBinder parameterBinder,
         IQueryResultPresenter presenter)
     {
-        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-        _parameterBinder = parameterBinder ?? throw new ArgumentNullException(nameof(parameterBinder));
-        _presenter = presenter ?? throw new ArgumentNullException(nameof(presenter));
+        _dbConnectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+        _queryParameterBinder = parameterBinder ?? throw new ArgumentNullException(nameof(parameterBinder));
+        _queryResultPresenter = presenter ?? throw new ArgumentNullException(nameof(presenter));
     }
 
     public void QueryRunner(CompiledQuery compiledQuery, Query originalQuery)
     {
         try
         {
-            using var connection = _connectionFactory.CreateConnection();
+            using var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
             using var command = connection.CreateCommand();
             command.CommandText = compiledQuery.SqlQuery;
 
-            var parameters = _parameterBinder.BindParameters(originalQuery);
+            var parameters = _queryParameterBinder.BindParameters(originalQuery);
             foreach (var param in parameters)
             {
                 var dbParam = command.CreateParameter();
@@ -42,7 +42,7 @@ internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
             }
 
             using var reader = command.ExecuteReader();
-            _presenter.PresentResults(reader);
+            _queryResultPresenter.PresentResults(reader);
         }
         catch (DbException dbEx)
         {

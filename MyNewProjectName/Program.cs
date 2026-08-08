@@ -21,12 +21,12 @@ var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION")
 
 var pgRunner = new DatabaseQueryRunner(
     new PostgresConnectionFactory(pgConnection), 
-    new PostgresQueryParameterBinder(new PostgresGrammar()),
+    new PostgresQueryParameterBinder(new PostgresSyntaxFormatter()),
     presenter
 );
 
 var pgOrchestrator = new QueryExecutionOrchestrator(
-    CreateCompiler(new PostgresGrammar()),
+    CreateCompiler(new PostgresSyntaxFormatter()),
     pgRunner
 );
 
@@ -35,12 +35,12 @@ var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION")
                        
 var sqlRunner = new DatabaseQueryRunner(
     new SqlServerConnectionFactory(sqlConnection),
-    new SqlServerQueryParameterBinder(new SqlServerGrammar()),
+    new SqlServerQueryParameterBinder(new SqlServerSyntaxFormatter()),
     presenter
 );
 
 var sqlOrchestrator = new QueryExecutionOrchestrator(
-    CreateCompiler(new SqlServerGrammar()),
+    CreateCompiler(new SqlServerSyntaxFormatter()),
     sqlRunner
 );
 

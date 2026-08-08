@@ -8,11 +8,11 @@ namespace MyNewProjectName.Execution.Business;
 
 internal sealed class PostgresQueryParameterBinder : IQueryParameterBinder
 {
-    private readonly IDatabaseSpecificSyntaxFormatter _formatter;
+    private readonly IDatabaseSpecificSyntaxFormatter _databaseSpecificSyntaxFormatter;
 
     public PostgresQueryParameterBinder(IDatabaseSpecificSyntaxFormatter formatter)
     {
-        _formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+        _databaseSpecificSyntaxFormatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
     }
 
     public IReadOnlyList<QueryParameter> BindParameters(Query query)

@@ -2,7 +2,7 @@
 
 namespace MyNewProjectName.Grammars.Business;
 
-internal sealed class PostgresGrammar : IDatabaseSpecificSyntaxFormatter
+internal sealed class PostgresSyntaxFormatter : IDatabaseSpecificSyntaxFormatter
 {
     public int ParameterStartIndex => 1;
 
