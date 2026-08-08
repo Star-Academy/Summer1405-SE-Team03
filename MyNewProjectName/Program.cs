@@ -15,12 +15,13 @@ var query = new Query()
 
 IQueryResultPresenter presenter = new StudentQueryResultPresenter();
 
+
 var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
                    ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
 
 var pgRunner = new DatabaseQueryRunner(
     new PostgresConnectionFactory(pgConnection), 
-    new PostgresQueryParameterBinder(),
+    new PostgresQueryParameterBinder(new PostgresGrammar()),
     presenter
 );
 
@@ -34,7 +35,7 @@ var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION")
                        
 var sqlRunner = new DatabaseQueryRunner(
     new SqlServerConnectionFactory(sqlConnection),
-    new SqlServerQueryParameterBinder(),
+    new SqlServerQueryParameterBinder(new SqlServerGrammar()),
     presenter
 );
 

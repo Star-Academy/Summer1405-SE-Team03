@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using MyNewProjectName.Compilers.Abstractions;
 using MyNewProjectName.Core;
 
@@ -23,12 +22,12 @@ internal sealed class SqlQueryCompiler : ISqlQueryCompiler
 
     public CompiledQuery Compile(Query query)
     {
-        var queryTextBuilder = new StringBuilder();
-        
-        _selectClauseBuilder.Build(queryTextBuilder, query);
-        _fromClauseBuilder.Build(queryTextBuilder, query);
-        var bindings = _whereClauseBuilder.Build(queryTextBuilder, query);
+        var selectClause = _selectClauseBuilder.Build(query);
+        var fromClause = _fromClauseBuilder.Build(query);
+        var whereClause = _whereClauseBuilder.Build(query);
 
-        return new CompiledQuery(queryTextBuilder.ToString(), bindings);
+        var fullSql = $"{selectClause}{fromClause}{whereClause.SqlText}";
+
+        return new CompiledQuery(fullSql, whereClause.BindingValues);
     }
 }

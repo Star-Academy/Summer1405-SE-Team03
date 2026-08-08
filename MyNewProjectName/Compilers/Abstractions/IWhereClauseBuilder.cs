@@ -1,9 +1,9 @@
-﻿using System.Text;
+﻿using MyNewProjectName.Compilers.Business;
 using MyNewProjectName.Core;
 
 namespace MyNewProjectName.Compilers.Abstractions;
 
 public interface IWhereClauseBuilder
 {
-    IList<object> Build(StringBuilder queryBuilder, Query query);
+    WhereClauseResult Build(Query query);
 }

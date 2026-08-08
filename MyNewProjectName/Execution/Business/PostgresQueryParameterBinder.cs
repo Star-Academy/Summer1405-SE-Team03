@@ -1,22 +1,29 @@
-using System.Data;
+using System;
+using System.Collections.Generic;
 using MyNewProjectName.Core;
 using MyNewProjectName.Execution.Abstractions;
-using Npgsql;
+using MyNewProjectName.Grammars.Abstractions;
 
 namespace MyNewProjectName.Execution.Business;
 
 internal sealed class PostgresQueryParameterBinder : IQueryParameterBinder
 {
-    public void AddParameters(IDbCommand dbCommand, Query query)
+    private readonly IDatabaseSpecificSyntaxFormatter _formatter;
+
+    public PostgresQueryParameterBinder(IDatabaseSpecificSyntaxFormatter formatter)
     {
-        if (dbCommand is not NpgsqlCommand npgsqlCommand)
-        {
-            throw new InvalidOperationException("Command must be of type NpgsqlCommand.");
-        }
+        _formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+    }
+
+    public IReadOnlyList<QueryParameter> BindParameters(Query query)
+    {
+        var resultQueryParameter = new List<QueryParameter>();
 
         foreach (var parameter in query.WhereConditions)
         {
-            npgsqlCommand.Parameters.Add(new NpgsqlParameter { Value = parameter.Value });
+            resultQueryParameter.Add(new QueryParameter(string.Empty, parameter.Value));
         }
+
+        return resultQueryParameter;
     }
 }

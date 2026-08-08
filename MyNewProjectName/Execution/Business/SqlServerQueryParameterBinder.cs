@@ -1,24 +1,32 @@
-using System.Data;
-using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
 using MyNewProjectName.Core;
 using MyNewProjectName.Execution.Abstractions;
+using MyNewProjectName.Grammars.Abstractions;
 
 namespace MyNewProjectName.Execution.Business;
 
 internal sealed class SqlServerQueryParameterBinder : IQueryParameterBinder
 {
-    public void AddParameters(IDbCommand dbCommand, Query query)
+    private readonly IDatabaseSpecificSyntaxFormatter _formatter;
+
+    public SqlServerQueryParameterBinder(IDatabaseSpecificSyntaxFormatter formatter)
     {
-        if (dbCommand is not SqlCommand sqlCommand)
+        _formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+    }
+
+    public IReadOnlyList<QueryParameter> BindParameters(Query query)
+    {
+        var resultQueryParameter = new List<QueryParameter>();
+        var index = _formatter.ParameterStartIndex;
+
+        foreach (var parameter in query.WhereConditions)
         {
-            throw new InvalidOperationException("Command must be of type sqlCommand.");
+            var paramName = _formatter.GetParameterName(index);
+            resultQueryParameter.Add(new QueryParameter(paramName, parameter.Value));
+            index++;
         }
-        var sqlIndex = 0;
-        
-        foreach (var param in query.WhereConditions)
-        {
-            sqlCommand.Parameters.AddWithValue($"@p{sqlIndex}", param.Value);
-            sqlIndex++;
-        }
+
+        return resultQueryParameter;
     }
 }

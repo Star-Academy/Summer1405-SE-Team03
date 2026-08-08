@@ -1,9 +1,10 @@
-using System.Data;
+using System.Collections.Generic;
 using MyNewProjectName.Core;
+using MyNewProjectName.Execution.Business;
 
 namespace MyNewProjectName.Execution.Abstractions;
 
 public interface IQueryParameterBinder
 {
-    void AddParameters(IDbCommand dbCommand, Query query);
+    IReadOnlyList<QueryParameter> BindParameters(Query query);
 }

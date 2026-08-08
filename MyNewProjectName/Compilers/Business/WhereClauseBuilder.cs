@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using MyNewProjectName.Compilers.Abstractions;
 using MyNewProjectName.Core;
 
@@ -16,15 +15,16 @@ internal sealed class WhereClauseBuilder : IWhereClauseBuilder
         _whereConditionProcessor = whereConditionProcessor ?? throw new ArgumentNullException(nameof(whereConditionProcessor));
     }
 
-    public IList<object> Build(StringBuilder queryBuilder, Query query)
+    public WhereClauseResult Build(Query query)
     {
-        if (!query.WhereConditions.Any()) return new List<object>();
+        if (!query.WhereConditions.Any()) 
+        {
+            return new WhereClauseResult(string.Empty, new List<object>());
+        }
 
-        queryBuilder.Append(" WHERE ");
         var processed = _whereConditionProcessor.Process(query.WhereConditions);
+        var sqlText = " WHERE " + string.Join(" AND ", processed.Conditions);
 
-        queryBuilder.Append(string.Join(" AND ", processed.Conditions));
-        
-        return processed.BindingValues; 
+        return new WhereClauseResult(sqlText, processed.BindingValues);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.Common;
 using MyNewProjectName.Core;
 using MyNewProjectName.Execution.Abstractions;
@@ -31,7 +32,14 @@ internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
             using var command = connection.CreateCommand();
             command.CommandText = compiledQuery.SqlQuery;
 
-            _parameterBinder.AddParameters(command, originalQuery);
+            var parameters = _parameterBinder.BindParameters(originalQuery);
+            foreach (var param in parameters)
+            {
+                var dbParam = command.CreateParameter();
+                dbParam.ParameterName = param.Name;
+                dbParam.Value = param.Value ?? DBNull.Value;
+                command.Parameters.Add(dbParam);
+            }
 
             using var reader = command.ExecuteReader();
             _presenter.PresentResults(reader);

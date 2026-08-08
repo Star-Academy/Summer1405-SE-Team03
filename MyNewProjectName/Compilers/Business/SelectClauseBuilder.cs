@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using MyNewProjectName.Compilers.Abstractions;
 using MyNewProjectName.Core;
 using MyNewProjectName.Grammars.Abstractions;
@@ -16,13 +15,9 @@ internal sealed class SelectClauseBuilder : ISelectClauseBuilder
         _databaseSpecificSyntaxFormatter = databaseSpecificSyntaxFormatter ?? throw new ArgumentNullException(nameof(databaseSpecificSyntaxFormatter));
     }
 
-    public StringBuilder Build(StringBuilder queryBuilder, Query query)
+    public string Build(Query query)
     {
-        queryBuilder.Append("SELECT ");
-        
         var quotedColumns = query.Columns.Select(c => _databaseSpecificSyntaxFormatter.FormatIdentifier(c));
-        queryBuilder.Append(string.Join(", ", quotedColumns));
-
-        return queryBuilder;
+        return "SELECT " + string.Join(", ", quotedColumns);
     }
 }
