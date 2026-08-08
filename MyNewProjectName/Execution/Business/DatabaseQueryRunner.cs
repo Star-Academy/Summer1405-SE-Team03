@@ -14,13 +14,13 @@ internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
     private readonly IQueryResultPresenter _queryResultPresenter;
 
     public DatabaseQueryRunner(
-        IDbConnectionFactory connectionFactory,
-        IQueryParameterBinder parameterBinder,
-        IQueryResultPresenter presenter)
+        IDbConnectionFactory dbConnectionFactory,
+        IQueryParameterBinder queryParameterBinder,
+        IQueryResultPresenter queryResultPresenter)
     {
-        _dbConnectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-        _queryParameterBinder = parameterBinder ?? throw new ArgumentNullException(nameof(parameterBinder));
-        _queryResultPresenter = presenter ?? throw new ArgumentNullException(nameof(presenter));
+        _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
+        _queryParameterBinder = queryParameterBinder ?? throw new ArgumentNullException(nameof(queryParameterBinder));
+        _queryResultPresenter = queryResultPresenter ?? throw new ArgumentNullException(nameof(queryResultPresenter));
     }
 
     public void QueryRunner(CompiledQuery compiledQuery, Query originalQuery)
