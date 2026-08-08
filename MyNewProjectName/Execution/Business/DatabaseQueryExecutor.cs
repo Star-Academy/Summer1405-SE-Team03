@@ -8,7 +8,7 @@ namespace MyNewProjectName.Execution.Business
 {
     public class DatabaseQueryExecutor(
         IDbProvider dbProvider,
-        ISqlCompiler compiler,
+        ISqlQueryCompiler compiler,
         IQueryResultPresenter queryResultPresenter,
         DatabaseOptions options)
         : IQueryExecutor
@@ -22,7 +22,7 @@ namespace MyNewProjectName.Execution.Business
                 using var connection = dbProvider.ConnectionFactory.CreateConnection(options.ConnectionString);
                 connection.Open();
 
-                using var command = dbProvider.CommandFactory.CreateCommand(compiledResult.Sql, connection);
+                using var command = dbProvider.CommandFactory.CreateCommand(compiledResult.SqlQuery, connection);
                 dbProvider.ParameterBinder.AddParameters(command, query);
 
                 using var reader = command.ExecuteReader();

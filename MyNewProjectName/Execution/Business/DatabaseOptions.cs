@@ -1,3 +1,3 @@
 namespace MyNewProjectName.Execution.Business;
 
-public record DatabaseOptions(string ConnectionString, string DatabaseName = "Database");
+public record DatabaseOptions(string ConnectionString, string DatabaseName);

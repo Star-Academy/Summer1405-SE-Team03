@@ -38,12 +38,12 @@ pgRunner.ExecuteQuery(query);
 sqlRunner.ExecuteQuery(query);
 return;
 
-static SqlCompiler CreateCompiler(ISqlGrammar grammar)
+static SqlQueryCompiler CreateCompiler(IDatabaseSpecificSyntaxFormatter grammar)
 {
     var selectBuilder = new SelectClauseBuilder(grammar);
     var fromBuilder = new FromClauseBuilder(grammar);
     var conditionProcessor = new WhereConditionProcessor(grammar);
     var whereBuilder = new WhereClauseBuilder(conditionProcessor);
     
-    return new SqlCompiler(selectBuilder, fromBuilder, whereBuilder);
+    return new SqlQueryCompiler(selectBuilder, fromBuilder, whereBuilder);
 }

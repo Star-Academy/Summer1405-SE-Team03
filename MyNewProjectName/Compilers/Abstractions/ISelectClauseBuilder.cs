@@ -5,5 +5,5 @@ namespace MyNewProjectName.Compilers.Abstractions;
 
 public interface ISelectClauseBuilder
 {
-    void Build(StringBuilder queryBuilder, Query query);
+    StringBuilder Build(StringBuilder queryBuilder, Query query);
 }

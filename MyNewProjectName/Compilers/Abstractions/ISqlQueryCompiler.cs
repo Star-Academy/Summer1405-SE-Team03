@@ -2,7 +2,7 @@
 
 namespace MyNewProjectName.Compilers.Abstractions;
 
-public interface ISqlCompiler
+public interface ISqlQueryCompiler
 {
     CompiledQuery Compile(Query query);
 }
