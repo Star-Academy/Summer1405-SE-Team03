@@ -10,9 +10,9 @@ internal sealed class PostgresQueryParameterBinder : IQueryParameterBinder
 {
     private readonly IDatabaseSpecificSyntaxFormatter _databaseSpecificSyntaxFormatter;
 
-    public PostgresQueryParameterBinder(IDatabaseSpecificSyntaxFormatter formatter)
+    public PostgresQueryParameterBinder(IDatabaseSpecificSyntaxFormatter databaseSpecificSyntaxFormatter)
     {
-        _databaseSpecificSyntaxFormatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+        _databaseSpecificSyntaxFormatter = databaseSpecificSyntaxFormatter ?? throw new ArgumentNullException(nameof(databaseSpecificSyntaxFormatter));
     }
 
     public IReadOnlyList<QueryParameter> BindParameters(Query query)
