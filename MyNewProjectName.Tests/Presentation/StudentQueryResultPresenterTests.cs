@@ -1,18 +1,23 @@
 using System.Data;
+using FluentAssertions;
 using MyNewProjectName.Presentation.Business;
+using Xunit;
 
 namespace MyNewProjectName.Tests.Presentation;
 
 public class StudentQueryResultPresenterTests
 {
-    [Fact]
-    public void Constructor_Should_GetReaderAndWriteInConsole_When_WeReachInTheFinal()
+    [Theory]
+    [InlineData("123", "Ali")]
+    [InlineData("456", "Reza")]
+    [InlineData("789", "Zahra")]
+    public void PresentResults_Should_WriteFormattedOutputToConsole_When_DataReaderContainsRows(string studentNumber, string firstName)
     {
+        // Arrange
         var table = new DataTable();
         table.Columns.Add("studentnumber", typeof(string));
         table.Columns.Add("firstname", typeof(string));
-        table.Rows.Add("123", "Ali");
-        table.Rows.Add("456", "Reza");
+        table.Rows.Add(studentNumber, firstName);
 
         using var reader = table.CreateDataReader();
         var presenter = new StudentQueryResultPresenter();
@@ -25,8 +30,8 @@ public class StudentQueryResultPresenterTests
 
         // Assert
         var output = stringWriter.ToString();
-        Assert.Contains("Student Number: 123, Name: Ali", output);
-        Assert.Contains("Student Number: 456, Name: Reza", output);
+        var expectedOutput = $"Student Number: {studentNumber}, Name: {firstName}";
         
-}
+        output.Should().Contain(expectedOutput);
     }
+}
