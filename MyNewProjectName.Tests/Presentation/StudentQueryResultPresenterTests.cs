@@ -6,7 +6,7 @@ namespace MyNewProjectName.Tests.Presentation;
 public class StudentQueryResultPresenterTests
 {
     [Fact]
-    public void StudentQueryResultPresenter_Constructor()
+    public void Constructor_Should_GetReaderAndWriteInConsole_When_WeReachInTheFinal()
     {
         var table = new DataTable();
         table.Columns.Add("studentnumber", typeof(string));
