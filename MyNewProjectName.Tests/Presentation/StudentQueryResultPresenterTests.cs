@@ -7,6 +7,13 @@ namespace MyNewProjectName.Tests.Presentation;
 
 public class StudentQueryResultPresenterTests
 {
+    private readonly StudentQueryResultPresenter sut;
+
+    public StudentQueryResultPresenterTests()
+    {
+        sut =  new StudentQueryResultPresenter();
+    }
+
     [Theory]
     [InlineData("123", "Ali")]
     [InlineData("456", "Reza")]
@@ -20,13 +27,12 @@ public class StudentQueryResultPresenterTests
         table.Rows.Add(studentNumber, firstName);
 
         using var reader = table.CreateDataReader();
-        var presenter = new StudentQueryResultPresenter();
 
         using var stringWriter = new StringWriter();
         Console.SetOut(stringWriter);
 
         // Act
-        presenter.PresentResults(reader);
+        sut.PresentResults(reader);
 
         // Assert
         var output = stringWriter.ToString();

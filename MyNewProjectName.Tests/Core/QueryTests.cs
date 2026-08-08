@@ -2,39 +2,38 @@ using MyNewProjectName.Core;
 using Xunit;
 
 namespace MyNewProjectName.Tests.Core;
-
-public class QueryTests
+public class QueryTests 
 {
-    [Fact]
-    public void NewQuery_ShouldHaveDefaultValues()
+    private readonly Query sut;
+    public QueryTests()
     {
-        var query = new Query();
-
-        Assert.Equal(string.Empty, query.TableName);
-        Assert.Empty(query.Columns);
-        Assert.Empty(query.WhereConditions);
+        sut = new Query();
     }
-
+    
+    [Fact]
+    public void Constructor_Should_HaveDefaultValues_WhenInitialized()
+    {
+        Assert.Equal(string.Empty, sut.TableName);
+        Assert.Empty(sut.Columns);
+        Assert.Empty(sut.WhereConditions);
+    }
+    
     [Fact]
     public void From_ShouldSetTableName_AndReturnQueryInstance()
     {
-        var query = new Query();
+        var result = sut.From("student");
 
-        var result = query.From("student");
-
-        Assert.Equal("student", query.TableName);
-        Assert.Same(query, result);
+        Assert.Equal("student", sut.TableName);
+        Assert.Same(sut, result);
     }
 
     [Fact]
     public void Select_ShouldAppendColumns_AndReturnQueryInstance()
     {
-        var query = new Query();
+        var result = sut.Select("studentnumber").Select("firstname", "lastname");
 
-        var result = query.Select("studentnumber").Select("firstname", "lastname");
-
-        Assert.Equal(new[] { "studentnumber", "firstname", "lastname" }, query.Columns);
-        Assert.Same(query, result);
+        Assert.Equal(new[] { "studentnumber", "firstname", "lastname" }, sut.Columns);
+        Assert.Same(sut, result);
     }
 
     [Fact]

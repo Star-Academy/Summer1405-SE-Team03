@@ -5,12 +5,18 @@ using Xunit;
 namespace MyNewProjectName.Tests.Grammars;
 public class PostgresSyntaxFormatterTests
 {
+    private readonly PostgresSyntaxFormatter sut;
+
+    public PostgresSyntaxFormatterTests()
+    {
+        sut = new PostgresSyntaxFormatter();
+    }
+
     [Fact]
     public void FormatIdentifier_Should_WrapStringInDoubleQuotes_When_CalledWithValidString()
     {
-        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
         var columnName = "studentnumber";
-        var postgresResultFormatter =  postgresSyntaxFormatter.FormatIdentifier(columnName);
+        var postgresResultFormatter =  sut.FormatIdentifier(columnName);
         postgresResultFormatter.Should().Be("\"studentnumber\"");
     }
 
@@ -19,16 +25,14 @@ public class PostgresSyntaxFormatterTests
     [InlineData(2)]
     public void GetParameterName_Should_ReturnParameterWithDollarPrefix_When_IndexIsProvided(int index)
     {
-        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
-        var postgresResultFormatter = postgresSyntaxFormatter.GetParameterName(index);
+        var postgresResultFormatter = sut.GetParameterName(index);
         postgresResultFormatter.Should().Be($"${index}");
     }
 
     [Fact]
     public void ParametrStartIndex_Should_BeOne_When_YouWantToAccessTheDatabase()
     {
-        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
-        var postgresResultFormatter = postgresSyntaxFormatter.ParameterStartIndex;
+        var postgresResultFormatter = sut.ParameterStartIndex;
         postgresResultFormatter.Should().Be(1);
     }
 }

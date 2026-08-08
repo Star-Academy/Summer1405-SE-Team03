@@ -3,15 +3,22 @@ using FluentAssertions;
 using Xunit;
 
 namespace MyNewProjectName.Tests.Grammars;
+
 public class SqlServerSyntaxFormatterTests
 {
-    [Fact]
-    public void FormatIdentifier_Should_WrapStringInDoubleQuotes_When_CalledWithValidString()
+    private readonly SqlServerSyntaxFormatter sut;
+
+    public SqlServerSyntaxFormatterTests()
     {
-        var sqlServerSyntaxFormatter = new SqlServerSyntaxFormatter();
+        sut = new SqlServerSyntaxFormatter();
+    }
+
+    [Fact]
+    public void FormatIdentifier_Should_WrapStringInBrackets_When_CalledWithValidString()
+    {
         var columnName = "studentnumber";
-        var sqlServerResultFormatter =  sqlServerSyntaxFormatter.FormatIdentifier(columnName);
-        sqlServerResultFormatter.Should().Be("[studentnumber]");
+        var result = sut.FormatIdentifier(columnName);
+        result.Should().Be("[studentnumber]");
     }
 
     [Theory]
@@ -19,16 +26,14 @@ public class SqlServerSyntaxFormatterTests
     [InlineData(2)]
     public void GetParameterName_Should_ReturnParameterWithAtPrefixedAtP_When_IndexIsProvided(int index)
     {
-        var sqlServerSyntaxFormatter = new SqlServerSyntaxFormatter();
-        var sqlServersResultFormatter = sqlServerSyntaxFormatter.GetParameterName(index);
-        sqlServersResultFormatter.Should().Be($"@p{index}");
+        var result = sut.GetParameterName(index);
+        result.Should().Be($"@p{index}");
     }
 
     [Fact]
     public void ParametrStartIndex_Should_BeZero_When_YouWantToAccessTheDatabase()
     {
-        var sqlServerSyntaxFormatter = new SqlServerSyntaxFormatter();
-        var sqlServerResultFormatter = sqlServerSyntaxFormatter.ParameterStartIndex;
-        sqlServerResultFormatter.Should().Be(0);
+        var result = sut.ParameterStartIndex;
+        result.Should().Be(0);
     }
 }
