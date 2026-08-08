@@ -1,4 +1,5 @@
-﻿using MyNewProjectName.Compilers.Business;
+﻿using System;
+using MyNewProjectName.Compilers.Business;
 using MyNewProjectName.Core;
 using MyNewProjectName.Execution.Business;
 using MyNewProjectName.Grammars.Abstractions;
@@ -17,25 +18,34 @@ IQueryResultPresenter presenter = new StudentQueryResultPresenter();
 var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
                    ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
 
-var pgRunner = new DatabaseQueryExecutor(
+var pgRunner = new DatabaseQueryRunner(
     new PostgresDbProvider(),
-    CreateCompiler(new PostgresGrammar()),
     presenter,
     new DatabaseOptions(pgConnection, "PostgreSQL")
+);
+
+var pgOrchestrator = new QueryExecutionOrchestrator(
+    CreateCompiler(new PostgresGrammar()),
+    pgRunner
 );
 
 var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION") 
                     ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
                        
-var sqlRunner = new DatabaseQueryExecutor(
+var sqlRunner = new DatabaseQueryRunner(
     new SqlServerDbProvider(), 
-    CreateCompiler(new SqlServerGrammar()),
     presenter,
     new DatabaseOptions(sqlConnection, "SQL Server")
 );
 
-pgRunner.ExecuteQuery(query);
-sqlRunner.ExecuteQuery(query);
+var sqlOrchestrator = new QueryExecutionOrchestrator(
+    CreateCompiler(new SqlServerGrammar()),
+    sqlRunner
+);
+
+pgOrchestrator.ExecuteQuery(query);
+sqlOrchestrator.ExecuteQuery(query);
+
 return;
 
 static SqlQueryCompiler CreateCompiler(IDatabaseSpecificSyntaxFormatter grammar)
