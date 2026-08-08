@@ -3,7 +3,7 @@ using MyNewProjectName.Presentation.Abstractions;
 
 namespace MyNewProjectName.Presentation.Business
 {
-    public class StudentQueryResultPresenter : IQueryResultPresenter
+    internal sealed class StudentQueryResultPresenter : IQueryResultPresenter
     {
         public void PresentResults(IDataReader reader)
         {

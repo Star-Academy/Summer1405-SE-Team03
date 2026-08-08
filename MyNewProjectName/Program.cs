@@ -1,4 +1,5 @@
-﻿using MyNewProjectName.Compilers.Business;
+﻿using System;
+using MyNewProjectName.Compilers.Business;
 using MyNewProjectName.Core;
 using MyNewProjectName.Execution.Business;
 using MyNewProjectName.Grammars.Abstractions;
@@ -14,36 +15,46 @@ var query = new Query()
 
 IQueryResultPresenter presenter = new StudentQueryResultPresenter();
 
+
 var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
                    ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
 
-var pgRunner = new DatabaseQueryExecutor(
-    new PostgresDbProvider(),
-    CreateCompiler(new PostgresGrammar()),
-    presenter,
-    new DatabaseOptions(pgConnection, "PostgreSQL")
+var pgRunner = new DatabaseQueryRunner(
+    new PostgresConnectionFactory(pgConnection), 
+    new PostgresQueryParameterBinder(new PostgresSyntaxFormatter()),
+    presenter
+);
+
+var pgOrchestrator = new QueryExecutionOrchestrator(
+    CreateCompiler(new PostgresSyntaxFormatter()),
+    pgRunner
 );
 
 var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION") 
                     ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
                        
-var sqlRunner = new DatabaseQueryExecutor(
-    new SqlServerDbProvider(), 
-    CreateCompiler(new SqlServerGrammar()),
-    presenter,
-    new DatabaseOptions(sqlConnection, "SQL Server")
+var sqlRunner = new DatabaseQueryRunner(
+    new SqlServerConnectionFactory(sqlConnection),
+    new SqlServerQueryParameterBinder(new SqlServerSyntaxFormatter()),
+    presenter
 );
 
-pgRunner.ExecuteQuery(query);
-sqlRunner.ExecuteQuery(query);
+var sqlOrchestrator = new QueryExecutionOrchestrator(
+    CreateCompiler(new SqlServerSyntaxFormatter()),
+    sqlRunner
+);
+
+pgOrchestrator.ExecuteQuery(query);
+sqlOrchestrator.ExecuteQuery(query);
+
 return;
 
-static SqlCompiler CreateCompiler(ISqlGrammar grammar)
+static SqlQueryCompiler CreateCompiler(IDatabaseSpecificSyntaxFormatter grammar)
 {
     var selectBuilder = new SelectClauseBuilder(grammar);
     var fromBuilder = new FromClauseBuilder(grammar);
     var conditionProcessor = new WhereConditionProcessor(grammar);
     var whereBuilder = new WhereClauseBuilder(conditionProcessor);
     
-    return new SqlCompiler(selectBuilder, fromBuilder, whereBuilder);
+    return new SqlQueryCompiler(selectBuilder, fromBuilder, whereBuilder);
 }

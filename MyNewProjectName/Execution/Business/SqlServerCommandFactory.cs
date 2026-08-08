@@ -4,7 +4,7 @@ using MyNewProjectName.Execution.Abstractions;
 
 namespace MyNewProjectName.Execution.Business;
 
-public class SqlServerCommandFactory : IDbCommandFactory
+internal sealed class SqlServerCommandFactory : IDbCommandFactory
 {
     public IDbCommand CreateCommand(string sqlText, IDbConnection dbConnection)
     {

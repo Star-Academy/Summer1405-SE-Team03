@@ -4,7 +4,7 @@ using Npgsql;
 
 namespace MyNewProjectName.Execution.Business;
 
-public class PostgresCommandFactory : IDbCommandFactory
+internal sealed class PostgresCommandFactory : IDbCommandFactory
 {
     public IDbCommand CreateCommand(string sqlText, IDbConnection dbConnection)
     {

@@ -1,20 +1,30 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using MyNewProjectName.Compilers.Abstractions;
 using MyNewProjectName.Core;
 
 namespace MyNewProjectName.Compilers.Business;
-public class WhereClauseBuilder(IWhereConditionProcessor conditionProcessor) : IWhereClauseBuilder
+
+internal sealed class WhereClauseBuilder : IWhereClauseBuilder
 {
-    private readonly IWhereConditionProcessor _conditionProcessor = conditionProcessor ?? throw new ArgumentNullException(nameof(conditionProcessor));
+    private readonly IWhereConditionProcessor _whereConditionProcessor;
 
-    public IList<object> Build(StringBuilder queryBuilder, Query query)
+    public WhereClauseBuilder(IWhereConditionProcessor whereConditionProcessor)
     {
-        if (!query.WhereConditions.Any()) return new List<object>();
+        _whereConditionProcessor = whereConditionProcessor ?? throw new ArgumentNullException(nameof(whereConditionProcessor));
+    }
 
-        queryBuilder.Append(" WHERE ");
-        var processed = _conditionProcessor.Process(query.WhereConditions);
+    public WhereClauseResult Build(Query query)
+    {
+        if (!query.WhereConditions.Any()) 
+        {
+            return new WhereClauseResult(string.Empty, new List<object>());
+        }
 
-        queryBuilder.Append(string.Join(" AND ", processed.Conditions));
-        return processed.BindingValues; 
+        var processed = _whereConditionProcessor.Process(query.WhereConditions);
+        var sqlText = " WHERE " + string.Join(" AND ", processed.Conditions);
+
+        return new WhereClauseResult(sqlText, processed.BindingValues);
     }
 }
