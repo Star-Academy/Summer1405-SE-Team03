@@ -19,9 +19,9 @@ var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION")
                    ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
 
 var pgRunner = new DatabaseQueryRunner(
-    new PostgresDbProvider(),
-    presenter,
-    new DatabaseOptions(pgConnection, "PostgreSQL")
+    new PostgresConnectionFactory(pgConnection), 
+    new PostgresQueryParameterBinder(),
+    presenter
 );
 
 var pgOrchestrator = new QueryExecutionOrchestrator(
@@ -33,9 +33,9 @@ var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION")
                     ?? throw new InvalidOperationException("Environment variable 'SQLSERVER_CONNECTION' is not set.");
                        
 var sqlRunner = new DatabaseQueryRunner(
-    new SqlServerDbProvider(), 
-    presenter,
-    new DatabaseOptions(sqlConnection, "SQL Server")
+    new SqlServerConnectionFactory(sqlConnection),
+    new SqlServerQueryParameterBinder(),
+    presenter
 );
 
 var sqlOrchestrator = new QueryExecutionOrchestrator(

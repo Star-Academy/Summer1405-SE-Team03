@@ -4,5 +4,5 @@ namespace MyNewProjectName.Execution.Abstractions;
 
 public interface ICompiledQueryRunner
 {
-    void Run(CompiledQuery compiledQuery, Query originalQuery);
+    void QueryRunner(CompiledQuery compiledQuery, Query originalQuery);
 }

@@ -21,6 +21,6 @@ internal sealed class QueryExecutionOrchestrator : IQueryExecutor
     public void ExecuteQuery(Query query)
     {
         var compiledResult = _compiler.Compile(query);
-        _dbRunner.Run(compiledResult, query);
+        _dbRunner.QueryRunner(compiledResult, query);
     }
 }

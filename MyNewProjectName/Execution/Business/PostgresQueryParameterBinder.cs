@@ -5,7 +5,7 @@ using Npgsql;
 
 namespace MyNewProjectName.Execution.Business;
 
-public class PostgresParameterBinder : IQueryParameterBinder
+public class PostgresQueryParameterBinder : IQueryParameterBinder
 {
     public void AddParameters(IDbCommand dbCommand, Query query)
     {
