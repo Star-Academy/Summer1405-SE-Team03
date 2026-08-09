@@ -7,7 +7,6 @@ using MyNewProjectName.Execution.Abstractions;
 using MyNewProjectName.Execution.Business;
 using MyNewProjectName.Presentation.Abstractions;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using Xunit;
 
 namespace MyNewProjectName.Tests.Execution;
@@ -15,6 +14,7 @@ namespace MyNewProjectName.Tests.Execution;
 public class DatabaseQueryRunnerTests
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly IDbCommandFactory _dbCommandFactory;
     private readonly IQueryParameterBinder _queryParameterBinder;
     private readonly IQueryResultPresenter _queryResultPresenter;
     private readonly DatabaseQueryRunner _sut;
@@ -22,17 +22,18 @@ public class DatabaseQueryRunnerTests
     public DatabaseQueryRunnerTests()
     {
         _dbConnectionFactory = Substitute.For<IDbConnectionFactory>();
+        _dbCommandFactory = Substitute.For<IDbCommandFactory>();
         _queryParameterBinder = Substitute.For<IQueryParameterBinder>();
         _queryResultPresenter = Substitute.For<IQueryResultPresenter>();
-        _sut = new DatabaseQueryRunner(_dbConnectionFactory, _queryParameterBinder, _queryResultPresenter);
+        
+        _sut = new DatabaseQueryRunner(_dbConnectionFactory, _dbCommandFactory, _queryParameterBinder, _queryResultPresenter);
     }
 
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenDbConnectionFactoryIsNull()
     {
-        // Arrange
-        // Act
-        var action = () => new DatabaseQueryRunner(null!, _queryParameterBinder, _queryResultPresenter);
+        // Arrange & Act
+        var action = () => new DatabaseQueryRunner(null!, _dbCommandFactory, _queryParameterBinder, _queryResultPresenter);
 
         // Assert
         action.Should().Throw<ArgumentNullException>()
@@ -40,11 +41,21 @@ public class DatabaseQueryRunnerTests
     }
 
     [Fact]
+    public void Constructor_ShouldThrowArgumentNullException_WhenDbCommandFactoryIsNull()
+    {
+        // Arrange & Act
+        var action = () => new DatabaseQueryRunner(_dbConnectionFactory, null!, _queryParameterBinder, _queryResultPresenter);
+
+        // Assert
+        action.Should().Throw<ArgumentNullException>()
+            .WithParameterName("dbCommandFactory");
+    }
+
+    [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryParameterBinderIsNull()
     {
-        // Arrange
-        // Act
-        var action = () => new DatabaseQueryRunner(_dbConnectionFactory, null!, _queryResultPresenter);
+        // Arrange & Act
+        var action = () => new DatabaseQueryRunner(_dbConnectionFactory, _dbCommandFactory, null!, _queryResultPresenter);
 
         // Assert
         action.Should().Throw<ArgumentNullException>()
@@ -54,9 +65,8 @@ public class DatabaseQueryRunnerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryResultPresenterIsNull()
     {
-        // Arrange
-        // Act
-        var action = () => new DatabaseQueryRunner(_dbConnectionFactory, _queryParameterBinder, null!);
+        // Arrange & Act
+        var action = () => new DatabaseQueryRunner(_dbConnectionFactory, _dbCommandFactory, _queryParameterBinder, null!);
 
         // Assert
         action.Should().Throw<ArgumentNullException>()
@@ -68,14 +78,16 @@ public class DatabaseQueryRunnerTests
     {
         // Arrange
         var originalQuery = new Query().From("student");
-        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\"", new List<object>());
+        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\"");
 
         var connection = Substitute.For<DbConnection>();
         var command = Substitute.For<DbCommand>();
         var reader = Substitute.For<DbDataReader>();
 
         _dbConnectionFactory.CreateConnection().Returns(connection);
-        connection.CreateCommand().Returns(command);
+        
+        _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection).Returns(command);
+        
         command.ExecuteReader().Returns(reader);
         _queryParameterBinder.BindParameters(originalQuery).Returns(new List<QueryParameter>());
 
@@ -83,9 +95,7 @@ public class DatabaseQueryRunnerTests
         _sut.QueryRunner(compiledQuery, originalQuery);
 
         // Assert
-        command.CommandText.Should().Be("SELECT * FROM \"student\"");
         _queryResultPresenter.Received(1).PresentResults(reader);
-        
     }
 
     [Fact]
@@ -93,7 +103,7 @@ public class DatabaseQueryRunnerTests
     {
         // Arrange
         var originalQuery = new Query().From("student").Where("grade", 19.5);
-        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\" WHERE \"grade\" = $1", new List<object> { 19.5 });
+        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\" WHERE \"grade\" = $1");
 
         var connection = Substitute.For<DbConnection>();
         var command = Substitute.For<DbCommand>();
@@ -102,7 +112,7 @@ public class DatabaseQueryRunnerTests
         var dbParameter = Substitute.For<DbParameter>();
 
         _dbConnectionFactory.CreateConnection().Returns(connection);
-        connection.CreateCommand().Returns(command);
+        _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection).Returns(command);
         command.Parameters.Returns(parameterCollection); 
         command.CreateParameter().Returns(dbParameter);
         command.ExecuteReader().Returns(reader);
@@ -128,7 +138,7 @@ public class DatabaseQueryRunnerTests
     {
         // Arrange
         var originalQuery = new Query().From("student").Where("firstname", null!);
-        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\" WHERE \"firstname\" = $1", new List<object> { DBNull.Value });
+        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\" WHERE \"firstname\" = $1");
 
         var connection = Substitute.For<DbConnection>();
         var command = Substitute.For<DbCommand>();
@@ -137,7 +147,7 @@ public class DatabaseQueryRunnerTests
         var dbParameter = Substitute.For<DbParameter>();
 
         _dbConnectionFactory.CreateConnection().Returns(connection);
-        connection.CreateCommand().Returns(command);
+        _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection).Returns(command);
         command.Parameters.Returns(parameterCollection);
         command.CreateParameter().Returns(dbParameter);
         command.ExecuteReader().Returns(reader);
@@ -162,7 +172,7 @@ public class DatabaseQueryRunnerTests
     {
         // Arrange
         var originalQuery = new Query().From("student");
-        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\"", new List<object>());
+        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\"");
 
         var connection = Substitute.For<DbConnection>();
         var dbException = Substitute.For<DbException>();

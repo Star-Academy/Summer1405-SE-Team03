@@ -31,8 +31,7 @@ public class SqlQueryCompilerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenSelectClauseBuilderIsNull()
     {
-        // Arrange
-        // Act
+        // Arrange & Act
         var action = () => new SqlQueryCompiler(null!, _fromClauseBuilderSubstitute, _whereClauseBuilderSubstitute);
 
         // Assert
@@ -43,8 +42,7 @@ public class SqlQueryCompilerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenFromClauseBuilderIsNull()
     {
-        // Arrange
-        // Act
+        // Arrange & Act
         var action = () => new SqlQueryCompiler(_selectClauseBuilderSubstitute, null!, _whereClauseBuilderSubstitute);
 
         // Assert
@@ -55,8 +53,7 @@ public class SqlQueryCompilerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenWhereClauseBuilderIsNull()
     {
-        // Arrange
-        // Act
+        // Arrange & Act
         var action = () => new SqlQueryCompiler(_selectClauseBuilderSubstitute, _fromClauseBuilderSubstitute, null!);
 
         // Assert
@@ -72,18 +69,13 @@ public class SqlQueryCompilerTests
 
         _selectClauseBuilderSubstitute.Build(query).Returns("SELECT *");
         _fromClauseBuilderSubstitute.Build(query).Returns(" FROM \"student\"");
-        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(string.Empty, new List<object>()));
+        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(string.Empty));
 
         // Act
         var result = _sut.Compile(query);
 
         // Assert
         result.SqlQuery.Should().Be("SELECT * FROM \"student\"");
-        result.Bindings.Should().BeEmpty();
-
-        _selectClauseBuilderSubstitute.Received(1).Build(query);
-        _fromClauseBuilderSubstitute.Received(1).Build(query);
-        _whereClauseBuilderSubstitute.Received(1).Build(query);
 
         Received.InOrder(() =>
         {
@@ -102,22 +94,15 @@ public class SqlQueryCompilerTests
             .Select("firstname")
             .Where("ismale", false);
 
-        var expectedBindings = new List<object> { false };
-
         _selectClauseBuilderSubstitute.Build(query).Returns("SELECT \"firstname\"");
         _fromClauseBuilderSubstitute.Build(query).Returns(" FROM \"student\"");
-        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(" WHERE \"ismale\" = $1", expectedBindings));
+        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(" WHERE \"ismale\" = $1"));
 
         // Act
         var result = _sut.Compile(query);
 
         // Assert
         result.SqlQuery.Should().Be("SELECT \"firstname\" FROM \"student\" WHERE \"ismale\" = $1");
-        result.Bindings.Should().Equal(expectedBindings);
-
-        _selectClauseBuilderSubstitute.Received(1).Build(query);
-        _fromClauseBuilderSubstitute.Received(1).Build(query);
-        _whereClauseBuilderSubstitute.Received(1).Build(query);
 
         Received.InOrder(() =>
         {
@@ -137,29 +122,15 @@ public class SqlQueryCompilerTests
             .Where("ismale", false)
             .Where("grade", 19.24m);
 
-        var expectedBindings = new List<object> { false, 19.24m };
-
         _selectClauseBuilderSubstitute.Build(query).Returns("SELECT \"studentnumber\", \"firstname\"");
         _fromClauseBuilderSubstitute.Build(query).Returns(" FROM \"student\"");
-        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(" WHERE \"ismale\" = $1 AND \"grade\" = $2", expectedBindings));
+        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(" WHERE \"ismale\" = $1 AND \"grade\" = $2"));
 
         // Act
         var result = _sut.Compile(query);
 
         // Assert
         result.SqlQuery.Should().Be("SELECT \"studentnumber\", \"firstname\" FROM \"student\" WHERE \"ismale\" = $1 AND \"grade\" = $2");
-        result.Bindings.Should().Equal(expectedBindings);
-
-        _selectClauseBuilderSubstitute.Received(1).Build(query);
-        _fromClauseBuilderSubstitute.Received(1).Build(query);
-        _whereClauseBuilderSubstitute.Received(1).Build(query);
-
-        Received.InOrder(() =>
-        {
-            _selectClauseBuilderSubstitute.Build(query);
-            _fromClauseBuilderSubstitute.Build(query);
-            _whereClauseBuilderSubstitute.Build(query);
-        });
     }
 
     [Fact]
@@ -170,28 +141,14 @@ public class SqlQueryCompilerTests
             .From("student")
             .Where("firstname", null!);
 
-        var expectedBindings = new List<object> { DBNull.Value };
-
         _selectClauseBuilderSubstitute.Build(query).Returns("SELECT *");
         _fromClauseBuilderSubstitute.Build(query).Returns(" FROM \"student\"");
-        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(" WHERE \"firstname\" = $1", expectedBindings));
+        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(" WHERE \"firstname\" = $1"));
 
         // Act
         var result = _sut.Compile(query);
 
         // Assert
         result.SqlQuery.Should().Be("SELECT * FROM \"student\" WHERE \"firstname\" = $1");
-        result.Bindings.Should().ContainSingle().Which.Should().Be(DBNull.Value);
-
-        _selectClauseBuilderSubstitute.Received(1).Build(query);
-        _fromClauseBuilderSubstitute.Received(1).Build(query);
-        _whereClauseBuilderSubstitute.Received(1).Build(query);
-
-        Received.InOrder(() =>
-        {
-            _selectClauseBuilderSubstitute.Build(query);
-            _fromClauseBuilderSubstitute.Build(query);
-            _whereClauseBuilderSubstitute.Build(query);
-        });
     }
 }

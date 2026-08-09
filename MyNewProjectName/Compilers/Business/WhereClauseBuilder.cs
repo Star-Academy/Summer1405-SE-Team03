@@ -19,12 +19,12 @@ internal sealed class WhereClauseBuilder : IWhereClauseBuilder
     {
         if (!query.WhereConditions.Any()) 
         {
-            return new WhereClauseResult(string.Empty, new List<object>());
+            return new WhereClauseResult(string.Empty);
         }
 
         var processed = _whereConditionProcessor.Process(query.WhereConditions);
         var sqlText = " WHERE " + string.Join(" AND ", processed.Conditions);
 
-        return new WhereClauseResult(sqlText, processed.BindingValues);
+        return new WhereClauseResult(sqlText);
     }
 }

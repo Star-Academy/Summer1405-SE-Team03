@@ -52,8 +52,8 @@ public class QueryExecutionOrchestratorTests
     {
         // Arrange
         var query = new Query().From("users");
-        var compiledQuery = new CompiledQuery("SELECT * FROM \"users\"", new List<object>());
-
+        var compiledQuery = new CompiledQuery("SELECT * FROM \"users\"");
+        
         _compiler.Compile(query).Returns(compiledQuery);
 
         // Act

@@ -42,7 +42,6 @@ public class WhereClauseBuilderTests
 
         // Assert
         result.SqlText.Should().BeEmpty();
-        result.BindingValues.Should().BeEmpty();
     }
 
     [Fact]
@@ -52,8 +51,7 @@ public class WhereClauseBuilderTests
         var query = new Query().Where("ismale", false);
 
         var processedResult = new ProcessedWhereConditions(
-            Conditions: new List<string> { "\"ismale\" = $1" },
-            BindingValues: new List<object> { false }
+            new List<string> { "\"ismale\" = $1" }
         );
 
         _whereConditionProcessorSubstitute.Process(query.WhereConditions).Returns(processedResult);
@@ -63,7 +61,6 @@ public class WhereClauseBuilderTests
 
         // Assert
         result.SqlText.Should().Be(" WHERE \"ismale\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be(false);
     }
 
     [Fact]
@@ -73,8 +70,7 @@ public class WhereClauseBuilderTests
         var query = new Query().Where("grade", 19.24m);
 
         var processedResult = new ProcessedWhereConditions(
-            Conditions: new List<string> { "\"grade\" = $1" },
-            BindingValues: new List<object> { 19.24m }
+            new List<string> { "\"grade\" = $1" }
         );
 
         _whereConditionProcessorSubstitute.Process(query.WhereConditions).Returns(processedResult);
@@ -84,7 +80,6 @@ public class WhereClauseBuilderTests
 
         // Assert
         result.SqlText.Should().Be(" WHERE \"grade\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be(19.24m);
     }
 
     [Fact]
@@ -94,8 +89,7 @@ public class WhereClauseBuilderTests
         var query = new Query().Where("firstname", "Ali");
 
         var processedResult = new ProcessedWhereConditions(
-            Conditions: new List<string> { "\"firstname\" = $1" },
-            BindingValues: new List<object> { "Ali" }
+            new List<string> { "\"firstname\" = $1" }
         );
 
         _whereConditionProcessorSubstitute.Process(query.WhereConditions).Returns(processedResult);
@@ -105,7 +99,6 @@ public class WhereClauseBuilderTests
 
         // Assert
         result.SqlText.Should().Be(" WHERE \"firstname\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be("Ali");
     }
 
     [Fact]
@@ -115,8 +108,7 @@ public class WhereClauseBuilderTests
         var query = new Query().Where("firstname", null!);
 
         var processedResult = new ProcessedWhereConditions(
-            Conditions: new List<string> { "\"firstname\" = $1" },
-            BindingValues: new List<object> { DBNull.Value }
+            new List<string> { "\"firstname\" = $1" }
         );
 
         _whereConditionProcessorSubstitute.Process(query.WhereConditions).Returns(processedResult);
@@ -126,7 +118,6 @@ public class WhereClauseBuilderTests
 
         // Assert
         result.SqlText.Should().Be(" WHERE \"firstname\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be(DBNull.Value);
     }
 
     [Fact]
@@ -139,8 +130,7 @@ public class WhereClauseBuilderTests
             .Where("age", 20);
 
         var processedResult = new ProcessedWhereConditions(
-            Conditions: new List<string> { "\"ismale\" = $1", "\"grade\" = $2", "\"age\" = $3" },
-            BindingValues: new List<object> { false, 19.24m, 20 }
+            new List<string> { "\"ismale\" = $1", "\"grade\" = $2", "\"age\" = $3" }
         );
 
         _whereConditionProcessorSubstitute.Process(query.WhereConditions).Returns(processedResult);
@@ -150,8 +140,6 @@ public class WhereClauseBuilderTests
 
         // Assert
         result.SqlText.Should().Be(" WHERE \"ismale\" = $1 AND \"grade\" = $2 AND \"age\" = $3");
-        result.BindingValues.Should().Equal(processedResult.BindingValues);
-
         _whereConditionProcessorSubstitute.Received(1).Process(query.WhereConditions);
     }
 }

@@ -6,6 +6,8 @@ using MyNewProjectName.Grammars.Abstractions;
 using MyNewProjectName.Grammars.Business;
 using MyNewProjectName.Presentation.Abstractions;
 using MyNewProjectName.Presentation.Business;
+using MyNewProjectName.Presentation.Abstractions;
+using MyNewProjectName.Presentation.Business;
 
 var query = new Query()
     .From("student")
@@ -13,18 +15,17 @@ var query = new Query()
     .Where("ismale", false)
     .Where("grade", 19.24m);
 
-IQueryResultPresenter presenter = new StudentQueryResultPresenter();
-
+IQueryResultPresenter presenter = new StudentQueryResultPresenter(new DefaultRowFormatter());
 
 var pgConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION") 
                    ?? throw new InvalidOperationException("Environment variable 'POSTGRES_CONNECTION' is not set.");
 
 var pgRunner = new DatabaseQueryRunner(
-    new PostgresConnectionFactory(pgConnection), 
+    new PostgresConnectionFactory(pgConnection),
+    new PostgresCommandFactory(),
     new PostgresQueryParameterBinder(new PostgresSyntaxFormatter()),
     presenter
 );
-
 var pgOrchestrator = new QueryExecutionOrchestrator(
     CreateCompiler(new PostgresSyntaxFormatter()),
     pgRunner
@@ -35,6 +36,7 @@ var sqlConnection = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION")
                        
 var sqlRunner = new DatabaseQueryRunner(
     new SqlServerConnectionFactory(sqlConnection),
+    new SqlServerCommandFactory(),
     new SqlServerQueryParameterBinder(new SqlServerSyntaxFormatter()),
     presenter
 );

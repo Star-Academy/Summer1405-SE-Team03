@@ -34,7 +34,6 @@ public class WhereConditionProcessorTests
         var result = _sut.Process(new List<WhereCondition>());
 
         result.Conditions.Should().BeEmpty();
-        result.BindingValues.Should().BeEmpty();
     }
 
     [Fact]
@@ -52,7 +51,6 @@ public class WhereConditionProcessorTests
 
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"grade\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be(19.24m);
         
         _formatterSubstitute.Received(1).FormatIdentifier("grade");
         _formatterSubstitute.Received(1).GetParameterName(1);
@@ -73,7 +71,6 @@ public class WhereConditionProcessorTests
 
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"ismale\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be(false);
     }
 
     [Fact]
@@ -91,7 +88,6 @@ public class WhereConditionProcessorTests
 
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"firstname\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be("Ali");
     }
 
     [Fact]
@@ -109,7 +105,6 @@ public class WhereConditionProcessorTests
 
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"firstname\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be(DBNull.Value);
     }
 
     [Fact]
@@ -137,10 +132,7 @@ public class WhereConditionProcessorTests
 
         // Assert
         var expectedConditions = new[] { "\"ismale\" = $1", "\"grade\" = $2", "\"age\" = $3" };
-        var expectedBindings = new object[] { false, 19.24m, 20 };
 
         result.Conditions.Should().Equal(expectedConditions);
-        result.BindingValues.Should().Equal(expectedBindings);
     }
-    
 }

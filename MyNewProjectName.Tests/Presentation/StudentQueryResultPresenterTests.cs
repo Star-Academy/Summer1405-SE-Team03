@@ -11,7 +11,7 @@ public class StudentQueryResultPresenterTests
 
     public StudentQueryResultPresenterTests()
     {
-        _sut =  new StudentQueryResultPresenter();
+        _sut =  new StudentQueryResultPresenter(new DefaultRowFormatter());
     }
 
     [Theory]
@@ -32,7 +32,7 @@ public class StudentQueryResultPresenterTests
         _sut.PresentResults(reader);
         //assert
         var output = stringWriter.ToString();
-        var expectedOutput = $"Student Number: {studentNumber}, Name: {firstName}";
+        var expectedOutput = $"studentnumber: {studentNumber}, firstname: {firstName}";
         
         output.Should().Contain(expectedOutput);
     }

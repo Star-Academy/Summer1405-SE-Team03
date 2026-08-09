@@ -3,10 +3,9 @@
 namespace MyNewProjectName.Grammars.Business;
 
 internal sealed class SqlServerSyntaxFormatter : IDatabaseSpecificSyntaxFormatter
-{
+{ 
     public int ParameterStartIndex => 0;
-
     public string FormatIdentifier(string identifier) => $"[{identifier}]";
-
     public string GetParameterName(int index) => $"@p{index}";
+    public string GetBindParameterName(int index) => GetParameterName(index);
 }

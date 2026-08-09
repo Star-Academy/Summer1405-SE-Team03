@@ -38,7 +38,8 @@ public class SelectClauseBuilderTests
         //assert
         var emptyResult = _sut.Build(emptySelectClauseQuery);
         //act
-        emptyResult.Should().Be("SELECT ");
+        emptyResult.Should().Be("SELECT * ");
+        
     }
 
     [Fact]
