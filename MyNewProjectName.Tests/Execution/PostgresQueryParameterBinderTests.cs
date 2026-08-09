@@ -12,11 +12,12 @@ namespace MyNewProjectName.Tests.Execution;
 public class PostgresQueryParameterBinderTests
 {
     private readonly PostgresQueryParameterBinder _sut;
+    private readonly IDatabaseSpecificSyntaxFormatter _formatterSubstitute ;
 
     public PostgresQueryParameterBinderTests()
     {
-        var formatterSubstitute = Substitute.For<IDatabaseSpecificSyntaxFormatter>();
-        _sut = new PostgresQueryParameterBinder(formatterSubstitute);
+        _formatterSubstitute = Substitute.For<IDatabaseSpecificSyntaxFormatter>();
+        _sut = new PostgresQueryParameterBinder(_formatterSubstitute);
     }
 
     [Fact]
@@ -62,12 +63,20 @@ public class PostgresQueryParameterBinderTests
             .Where("age", 20)
             .Where("ismale", true);
 
+        _formatterSubstitute.ParameterStartIndex.Returns(1);
+        _formatterSubstitute.GetParameterName(1).Returns("$1");
+        _formatterSubstitute.GetParameterName(2).Returns("$2");
+
         //act
         var result = _sut.BindParameters(query);
 
         //assert
         result.Should().HaveCount(2);
+        
+        result[0].Name.Should().Be("$1");
         result[0].Value.Should().Be(20);
+        
+        result[1].Name.Should().Be("$2");
         result[1].Value.Should().Be(true);
     }
 }
