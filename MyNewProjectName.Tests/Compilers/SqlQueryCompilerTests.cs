@@ -31,6 +31,7 @@ public class SqlQueryCompilerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenSelectClauseBuilderIsNull()
     {
+        // Arrange
         // Act
         var action = () => new SqlQueryCompiler(null!, _fromClauseBuilderSubstitute, _whereClauseBuilderSubstitute);
 
@@ -42,6 +43,7 @@ public class SqlQueryCompilerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenFromClauseBuilderIsNull()
     {
+        // Arrange
         // Act
         var action = () => new SqlQueryCompiler(_selectClauseBuilderSubstitute, null!, _whereClauseBuilderSubstitute);
 
@@ -53,6 +55,7 @@ public class SqlQueryCompilerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenWhereClauseBuilderIsNull()
     {
+        // Arrange
         // Act
         var action = () => new SqlQueryCompiler(_selectClauseBuilderSubstitute, _fromClauseBuilderSubstitute, null!);
 
