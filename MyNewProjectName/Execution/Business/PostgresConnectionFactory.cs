@@ -11,7 +11,12 @@ internal sealed class PostgresConnectionFactory : IDbConnectionFactory
 
     public PostgresConnectionFactory(string connectionString)
     {
-        _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+        ArgumentNullException.ThrowIfNull(connectionString);
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentException("Connection string cannot be empty or whitespace.", nameof(connectionString));
+        }
+        _connectionString = connectionString;
     }
 
     public IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);
