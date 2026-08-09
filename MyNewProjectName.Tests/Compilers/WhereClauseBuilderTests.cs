@@ -21,7 +21,7 @@ public class WhereClauseBuilderTests
     }
 
     [Fact]
-    public void Constructor_Should_ThrowArgumentNullException_When_ProcessorIsNull()
+    public void Constructor_ShouldThrowArgumentNullException_WhenProcessorIsNull()
     {
         // Arrange & Act
         var action = () => new WhereClauseBuilder(null!);
@@ -32,7 +32,7 @@ public class WhereClauseBuilderTests
     }
 
     [Fact]
-    public void Build_Should_ReturnEmptyResult_When_QueryHasNoWhereConditions()
+    public void Build_ShouldReturnEmptyResult_WhenQueryHasNoWhereConditions()
     {
         // Arrange
         var query = new Query();
@@ -46,7 +46,7 @@ public class WhereClauseBuilderTests
     }
 
     [Fact]
-    public void Build_Should_ReturnFormattedClause_When_ConditionValueIsBoolean()
+    public void Build_ShouldReturnFormattedClause_WhenConditionValueIsBoolean()
     {
         // Arrange
         var query = new Query().Where("ismale", false);
@@ -67,7 +67,7 @@ public class WhereClauseBuilderTests
     }
 
     [Fact]
-    public void Build_Should_ReturnFormattedClause_When_ConditionValueIsDecimal()
+    public void Build_ShouldReturnFormattedClause_WhenConditionValueIsDecimal()
     {
         // Arrange
         var query = new Query().Where("grade", 19.24m);
@@ -88,7 +88,7 @@ public class WhereClauseBuilderTests
     }
 
     [Fact]
-    public void Build_Should_ReturnFormattedClause_When_ConditionValueIsString()
+    public void Build_ShouldReturnFormattedClause_WhenConditionValueIsString()
     {
         // Arrange
         var query = new Query().Where("firstname", "Ali");
@@ -109,7 +109,7 @@ public class WhereClauseBuilderTests
     }
 
     [Fact]
-    public void Build_Should_ReturnFormattedClause_When_ConditionValueIsNull()
+    public void Build_ShouldReturnFormattedClause_WhenConditionValueIsNull()
     {
         // Arrange
         var query = new Query().Where("firstname", null!);
@@ -130,7 +130,7 @@ public class WhereClauseBuilderTests
     }
 
     [Fact]
-    public void Build_Should_ReturnAndJoinedSql_When_QueryHasMultipleWhereConditions()
+    public void Build_ShouldReturnAndJoinedSql_WhenQueryHasMultipleWhereConditions()
     {
         // Arrange
         var query = new Query()

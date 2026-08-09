@@ -11,7 +11,7 @@ public class QueryTests
     }
     
     [Fact]
-    public void Constructor_Should_HaveDefaultValues_WhenInitialized()
+    public void Constructor_ShouldHaveDefaultValuesWhenInitialized()
     {
         Assert.Equal(string.Empty, _sut.TableName);
         Assert.Empty(_sut.Columns);
@@ -19,7 +19,7 @@ public class QueryTests
     }
     
     [Fact]
-    public void From_ShouldSetTableName_AndReturnQueryInstance()
+    public void From_ShouldSetTableNameAndReturnSelf_WhenTableNameIsProvided()
     {
         var result = _sut.From("student");
 
@@ -28,7 +28,7 @@ public class QueryTests
     }
 
     [Fact]
-    public void Select_ShouldAppendColumns_AndReturnQueryInstance()
+    public void Select_ShouldAppendColumnsAndReturnSelf_WhenColumnsAreProvided()
     {
         var result = _sut.Select("studentnumber").Select("firstname", "lastname");
 
@@ -37,7 +37,7 @@ public class QueryTests
     }
 
     [Fact]
-    public void Where_ShouldAddConditions_AndReturnQueryInstance()
+    public void Where_ShouldAddConditionsAndReturnSelf_WhenConditionsAreProvided()
     {
         var query = new Query();
 
@@ -58,7 +58,7 @@ public class QueryTests
     }
 
     [Fact]
-    public void Query_ShouldSupportMethodChaining()
+    public void Query_ShouldSupportMethodChaining_WhenMultipleMethodsAreChained()
     {
         var query = new Query();
 

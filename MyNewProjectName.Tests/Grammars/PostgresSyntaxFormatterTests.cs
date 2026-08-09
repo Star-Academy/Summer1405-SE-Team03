@@ -13,7 +13,7 @@ public class PostgresSyntaxFormatterTests
     }
 
     [Fact]
-    public void FormatIdentifier_Should_WrapStringInDoubleQuotes_When_CalledWithValidString()
+    public void FormatIdentifier_ShouldWrapStringInDoubleQuotes_WhenCalledWithValidString()
     {
         var columnName = "studentnumber";
         var postgresResultFormatter =  _sut.FormatIdentifier(columnName);
@@ -23,14 +23,14 @@ public class PostgresSyntaxFormatterTests
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
-    public void GetParameterName_Should_ReturnParameterWithDollarPrefix_When_IndexIsProvided(int index)
+    public void GetParameterName_ShouldReturnParameterWithDollarPrefix_WhenIndexIsProvided(int index)
     {
         var postgresResultFormatter = _sut.GetParameterName(index);
         postgresResultFormatter.Should().Be($"${index}");
     }
 
     [Fact]
-    public void ParametrStartIndex_Should_BeOne_When_YouWantToAccessTheDatabase()
+    public void ParametrStartIndex_ShouldBeOne_WhenYouWantToAccessTheDatabase()
     {
         var postgresResultFormatter = _sut.ParameterStartIndex;
         postgresResultFormatter.Should().Be(1);

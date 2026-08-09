@@ -21,7 +21,7 @@ public class WhereConditionProcessorTests
     }
 
     [Fact]
-    public void Constructor_Should_ThrowArgumentNullException_When_FormatterIsNull()
+    public void Constructor_ShouldThrowArgumentNullException_WhenFormatterIsNull()
     {
         var act = () => new WhereConditionProcessor(null!);
 
@@ -29,7 +29,7 @@ public class WhereConditionProcessorTests
     }
 
     [Fact]
-    public void Process_Should_ReturnEmptyConditionsAndBindings_When_ClausesAreEmpty()
+    public void Process_ShouldReturnEmptyConditionsAndBindings_WhenClausesAreEmpty()
     {
         var result = _sut.Process(new List<WhereCondition>());
 
@@ -38,7 +38,7 @@ public class WhereConditionProcessorTests
     }
 
     [Fact]
-    public void Process_Should_UseFormatterToBuildCondition_When_ClauseIsValid()
+    public void Process_ShouldUseFormatterToBuildCondition_WhenClauseIsValid()
     {
         // Arrange
         var clauses = new List<WhereCondition> { new("grade", 19.24m) };
@@ -59,7 +59,7 @@ public class WhereConditionProcessorTests
     }
 
     [Fact]
-    public void Process_Should_FormatBooleanCondition_When_ValueIsBoolean()
+    public void Process_ShouldFormatBooleanCondition_WhenValueIsBoolean()
     {
         // Arrange
         var clauses = new List<WhereCondition> { new("ismale", false) };
@@ -77,7 +77,7 @@ public class WhereConditionProcessorTests
     }
 
     [Fact]
-    public void Process_Should_FormatStringCondition_When_ValueIsString()
+    public void Process_ShouldFormatStringCondition_WhenValueIsString()
     {
         // Arrange
         var clauses = new List<WhereCondition> { new("firstname", "Ali") };
@@ -95,7 +95,7 @@ public class WhereConditionProcessorTests
     }
 
     [Fact]
-    public void Process_Should_ReplaceWithDBNullValue_When_ValueIsNull()
+    public void Process_ShouldReplaceWithDBNullValue_WhenValueIsNull()
     {
         // Arrange
         var clauses = new List<WhereCondition> { new("firstname", null!) };
@@ -113,7 +113,7 @@ public class WhereConditionProcessorTests
     }
 
     [Fact]
-    public void Process_Should_FormatMultipleConditionsInOrder_When_MultipleClausesProvided()
+    public void Process_ShouldFormatMultipleConditionsInOrder_WhenMultipleClausesProvided()
     {
         // Arrange
         var clauses = new List<WhereCondition>

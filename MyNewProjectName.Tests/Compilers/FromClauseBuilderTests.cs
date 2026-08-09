@@ -20,7 +20,7 @@ public class FromClauseBuilderTests
     }
 
     [Fact]
-    public void Constructor_Should_ThrowArgumentNullException_When_FormatterIsNull()
+    public void Constructor_ShouldThrowArgumentNullException_WhenFormatterIsNull()
     {
         // act
         var nullAction = () => new FromClauseBuilder(null!);
@@ -31,7 +31,7 @@ public class FromClauseBuilderTests
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Constructor_Should_ThrowInvalidOperationException_When_FormatterIsWhitespace(string invalidFormatter)
+    public void Constructor_ShouldThrowInvalidOperationException_WhenFormatterIsWhitespace(string invalidFormatter)
     {
         var invalidQuery = new Query().From(invalidFormatter);
         Action act = () => _sut.Build(invalidQuery);
@@ -39,7 +39,7 @@ public class FromClauseBuilderTests
     }
 
     [Fact]
-    public void Constructor_Should_ThrowArgumentNullException_When_FromClauseBuilderIsValid()
+    public void Constructor_ShouldThrowArgumentNullException_WhenFromClauseBuilderIsValid()
     {
         //arrangr
         var validQuery = new Query().From("student");

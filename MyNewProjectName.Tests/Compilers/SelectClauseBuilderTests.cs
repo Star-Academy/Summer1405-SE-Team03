@@ -22,7 +22,7 @@ public class SelectClauseBuilderTests
     }
 
     [Fact]
-    public void Constructor_Should_ThrowArgumentNullException_When_FormatterIsNull()
+    public void Constructor_ShouldThrowArgumentNullException_WhenFormatterIsNull()
     {
         //act
         var nullAction = () => new SelectClauseBuilder(null!);
@@ -31,7 +31,7 @@ public class SelectClauseBuilderTests
     }
 
     [Fact]
-    public void Constructor_Should_ReturnOnlySelect_When_WeHaveEmptyColumn()
+    public void Constructor_ShouldReturnOnlySelect_WhenWeHaveEmptyColumn()
     {
         //act
         var emptySelectClauseQuery = new Query();
@@ -42,7 +42,7 @@ public class SelectClauseBuilderTests
     }
 
     [Fact]
-    public void Build_Should_ReturnFormattedColumnsJoinedByComma_When_ColumnsAreProvided()
+    public void Build_ShouldReturnFormattedColumnsJoinedByComma_WhenColumnsAreProvided()
     {
         //arrange
         var validSelectClauseQuery = new Query().Select("studentnumber", "firstname");

@@ -23,4 +23,8 @@
     <ProjectReference Include="..\MyNewProjectName\MyNewProjectName.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Execution\" />
+  </ItemGroup>
+
 </Project>
