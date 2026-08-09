@@ -1,6 +1,9 @@
-﻿using MyNewProjectName.Grammars.Abstractions;
-namespace MyNewProjectName.Grammars.Business;
+﻿using System.Diagnostics.CodeAnalysis;
 using MyNewProjectName.Grammars.Abstractions;
+
+namespace MyNewProjectName.Grammars.Business;
+
+[ExcludeFromCodeCoverage]
 internal sealed class PostgresSyntaxFormatter : IDatabaseSpecificSyntaxFormatter
 {
     public int ParameterStartIndex => 1;
