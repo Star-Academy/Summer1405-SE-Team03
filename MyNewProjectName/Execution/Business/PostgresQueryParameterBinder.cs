@@ -17,6 +17,8 @@ internal sealed class PostgresQueryParameterBinder : IQueryParameterBinder
 
     public IReadOnlyList<QueryParameter> BindParameters(Query query)
     {
+        ArgumentNullException.ThrowIfNull(query);
+
         var resultQueryParameter = new List<QueryParameter>();
 
         foreach (var parameter in query.WhereConditions)
