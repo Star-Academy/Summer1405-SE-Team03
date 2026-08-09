@@ -7,11 +7,11 @@ namespace MyNewProjectName.Tests.Presentation;
 
 public class StudentQueryResultPresenterTests
 {
-    private readonly StudentQueryResultPresenter sut;
+    private readonly StudentQueryResultPresenter _sut;
 
     public StudentQueryResultPresenterTests()
     {
-        sut =  new StudentQueryResultPresenter();
+        _sut =  new StudentQueryResultPresenter();
     }
 
     [Theory]
@@ -32,7 +32,7 @@ public class StudentQueryResultPresenterTests
         Console.SetOut(stringWriter);
 
         // Act
-        sut.PresentResults(reader);
+        _sut.PresentResults(reader);
 
         // Assert
         var output = stringWriter.ToString();

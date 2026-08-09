@@ -6,18 +6,18 @@ namespace MyNewProjectName.Tests.Grammars;
 
 public class SqlServerSyntaxFormatterTests
 {
-    private readonly SqlServerSyntaxFormatter sut;
+    private readonly SqlServerSyntaxFormatter _sut;
 
     public SqlServerSyntaxFormatterTests()
     {
-        sut = new SqlServerSyntaxFormatter();
+        _sut = new SqlServerSyntaxFormatter();
     }
 
     [Fact]
     public void FormatIdentifier_Should_WrapStringInBrackets_When_CalledWithValidString()
     {
         var columnName = "studentnumber";
-        var result = sut.FormatIdentifier(columnName);
+        var result = _sut.FormatIdentifier(columnName);
         result.Should().Be("[studentnumber]");
     }
 
@@ -26,14 +26,14 @@ public class SqlServerSyntaxFormatterTests
     [InlineData(2)]
     public void GetParameterName_Should_ReturnParameterWithAtPrefixedAtP_When_IndexIsProvided(int index)
     {
-        var result = sut.GetParameterName(index);
+        var result = _sut.GetParameterName(index);
         result.Should().Be($"@p{index}");
     }
 
     [Fact]
     public void ParametrStartIndex_Should_BeZero_When_YouWantToAccessTheDatabase()
     {
-        var result = sut.ParameterStartIndex;
+        var result = _sut.ParameterStartIndex;
         result.Should().Be(0);
     }
 }

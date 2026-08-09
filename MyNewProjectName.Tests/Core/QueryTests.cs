@@ -4,36 +4,36 @@ using Xunit;
 namespace MyNewProjectName.Tests.Core;
 public class QueryTests 
 {
-    private readonly Query sut;
+    private readonly Query _sut;
     public QueryTests()
     {
-        sut = new Query();
+        _sut = new Query();
     }
     
     [Fact]
     public void Constructor_Should_HaveDefaultValues_WhenInitialized()
     {
-        Assert.Equal(string.Empty, sut.TableName);
-        Assert.Empty(sut.Columns);
-        Assert.Empty(sut.WhereConditions);
+        Assert.Equal(string.Empty, _sut.TableName);
+        Assert.Empty(_sut.Columns);
+        Assert.Empty(_sut.WhereConditions);
     }
     
     [Fact]
     public void From_ShouldSetTableName_AndReturnQueryInstance()
     {
-        var result = sut.From("student");
+        var result = _sut.From("student");
 
-        Assert.Equal("student", sut.TableName);
-        Assert.Same(sut, result);
+        Assert.Equal("student", _sut.TableName);
+        Assert.Same(_sut, result);
     }
 
     [Fact]
     public void Select_ShouldAppendColumns_AndReturnQueryInstance()
     {
-        var result = sut.Select("studentnumber").Select("firstname", "lastname");
+        var result = _sut.Select("studentnumber").Select("firstname", "lastname");
 
-        Assert.Equal(new[] { "studentnumber", "firstname", "lastname" }, sut.Columns);
-        Assert.Same(sut, result);
+        Assert.Equal(new[] { "studentnumber", "firstname", "lastname" }, _sut.Columns);
+        Assert.Same(_sut, result);
     }
 
     [Fact]
