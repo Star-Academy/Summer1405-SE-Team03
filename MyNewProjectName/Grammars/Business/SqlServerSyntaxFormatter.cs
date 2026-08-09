@@ -9,5 +9,4 @@ internal sealed class SqlServerSyntaxFormatter : IDatabaseSpecificSyntaxFormatte
     public int ParameterStartIndex => 0;
     public string FormatIdentifier(string identifier) => $"[{identifier}]";
     public string GetParameterName(int index) => $"@p{index}";
-    public string GetBindParameterName(int index) => GetParameterName(index);
 }

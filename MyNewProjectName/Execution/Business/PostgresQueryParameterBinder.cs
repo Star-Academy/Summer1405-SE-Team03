@@ -28,7 +28,6 @@ internal sealed class PostgresQueryParameterBinder : IQueryParameterBinder
             resultQueryParameter.Add(new QueryParameter(bindName, parameter.Value));
             index++;
         }
-
         return resultQueryParameter;
     }
 }
