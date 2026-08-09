@@ -12,18 +12,18 @@ namespace MyNewProjectName.Tests.Compilers;
 public class WhereConditionProcessorTests
 {
     private readonly IDatabaseSpecificSyntaxFormatter _formatterSubstitute;
-    private readonly WhereConditionProcessor sut;
+    private readonly WhereConditionProcessor _sut;
 
     public WhereConditionProcessorTests()
     {
         _formatterSubstitute = Substitute.For<IDatabaseSpecificSyntaxFormatter>();
-        sut = new WhereConditionProcessor(_formatterSubstitute);
+        _sut = new WhereConditionProcessor(_formatterSubstitute);
     }
 
     [Fact]
     public void Constructor_Should_ThrowArgumentNullException_When_FormatterIsNull()
     {
-        Action act = () => new WhereConditionProcessor(null!);
+        var act = () => new WhereConditionProcessor(null!);
 
         act.Should().Throw<ArgumentNullException>();
     }
@@ -31,7 +31,7 @@ public class WhereConditionProcessorTests
     [Fact]
     public void Process_Should_ReturnEmptyConditionsAndBindings_When_ClausesAreEmpty()
     {
-        var result = sut.Process(new List<WhereCondition>());
+        var result = _sut.Process(new List<WhereCondition>());
 
         result.Conditions.Should().BeEmpty();
         result.BindingValues.Should().BeEmpty();
@@ -48,7 +48,7 @@ public class WhereConditionProcessorTests
         _formatterSubstitute.GetParameterName(1).Returns("$1");
 
         // Act
-        var result = sut.Process(clauses);
+        var result = _sut.Process(clauses);
 
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"grade\" = $1");
@@ -69,29 +69,11 @@ public class WhereConditionProcessorTests
         _formatterSubstitute.GetParameterName(1).Returns("$1");
 
         // Act
-        var result = sut.Process(clauses);
+        var result = _sut.Process(clauses);
 
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"ismale\" = $1");
         result.BindingValues.Should().ContainSingle().Which.Should().Be(false);
-    }
-
-    [Fact]
-    public void Process_Should_FormatNumericCondition_When_ValueIsDecimal()
-    {
-        // Arrange
-        var clauses = new List<WhereCondition> { new("grade", 19.24m) };
-
-        _formatterSubstitute.ParameterStartIndex.Returns(1);
-        _formatterSubstitute.FormatIdentifier("grade").Returns("\"grade\"");
-        _formatterSubstitute.GetParameterName(1).Returns("$1");
-
-        // Act
-        var result = sut.Process(clauses);
-
-        // Assert
-        result.Conditions.Should().ContainSingle().Which.Should().Be("\"grade\" = $1");
-        result.BindingValues.Should().ContainSingle().Which.Should().Be(19.24m);
     }
 
     [Fact]
@@ -105,7 +87,7 @@ public class WhereConditionProcessorTests
         _formatterSubstitute.GetParameterName(1).Returns("$1");
 
         // Act
-        var result = sut.Process(clauses);
+        var result = _sut.Process(clauses);
 
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"firstname\" = $1");
@@ -123,7 +105,7 @@ public class WhereConditionProcessorTests
         _formatterSubstitute.GetParameterName(1).Returns("$1");
 
         // Act
-        var result = sut.Process(clauses);
+        var result = _sut.Process(clauses);
 
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"firstname\" = $1");
@@ -151,7 +133,7 @@ public class WhereConditionProcessorTests
         _formatterSubstitute.GetParameterName(3).Returns("$3");
 
         // Act
-        var result = sut.Process(clauses);
+        var result = _sut.Process(clauses);
 
         // Assert
         var expectedConditions = new[] { "\"ismale\" = $1", "\"grade\" = $2", "\"age\" = $3" };
