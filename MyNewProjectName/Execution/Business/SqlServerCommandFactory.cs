@@ -8,6 +8,7 @@ internal sealed class SqlServerCommandFactory : IDbCommandFactory
 {
     public IDbCommand CreateCommand(string sqlText, IDbConnection dbConnection)
     {
+        ArgumentNullException.ThrowIfNull(dbConnection);
         return dbConnection is not SqlConnection sqlConnection 
             ? throw new InvalidOperationException("Connection must be of type SqlConnection.") 
             : new SqlCommand(sqlText, sqlConnection);
