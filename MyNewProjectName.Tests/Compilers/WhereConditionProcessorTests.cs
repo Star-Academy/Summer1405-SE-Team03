@@ -53,14 +53,67 @@ public class WhereConditionProcessorTests
         // Assert
         result.Conditions.Should().ContainSingle().Which.Should().Be("\"grade\" = $1");
         result.BindingValues.Should().ContainSingle().Which.Should().Be(19.24m);
-
-        // Verify
+        
         _formatterSubstitute.Received(1).FormatIdentifier("grade");
         _formatterSubstitute.Received(1).GetParameterName(1);
     }
 
     [Fact]
-    public void Process_Should_ReplaceNullWithDBNullValue_When_ValueIsNull()
+    public void Process_Should_FormatBooleanCondition_When_ValueIsBoolean()
+    {
+        // Arrange
+        var clauses = new List<WhereCondition> { new("ismale", false) };
+
+        _formatterSubstitute.ParameterStartIndex.Returns(1);
+        _formatterSubstitute.FormatIdentifier("ismale").Returns("\"ismale\"");
+        _formatterSubstitute.GetParameterName(1).Returns("$1");
+
+        // Act
+        var result = sut.Process(clauses);
+
+        // Assert
+        result.Conditions.Should().ContainSingle().Which.Should().Be("\"ismale\" = $1");
+        result.BindingValues.Should().ContainSingle().Which.Should().Be(false);
+    }
+
+    [Fact]
+    public void Process_Should_FormatNumericCondition_When_ValueIsDecimal()
+    {
+        // Arrange
+        var clauses = new List<WhereCondition> { new("grade", 19.24m) };
+
+        _formatterSubstitute.ParameterStartIndex.Returns(1);
+        _formatterSubstitute.FormatIdentifier("grade").Returns("\"grade\"");
+        _formatterSubstitute.GetParameterName(1).Returns("$1");
+
+        // Act
+        var result = sut.Process(clauses);
+
+        // Assert
+        result.Conditions.Should().ContainSingle().Which.Should().Be("\"grade\" = $1");
+        result.BindingValues.Should().ContainSingle().Which.Should().Be(19.24m);
+    }
+
+    [Fact]
+    public void Process_Should_FormatStringCondition_When_ValueIsString()
+    {
+        // Arrange
+        var clauses = new List<WhereCondition> { new("firstname", "Ali") };
+
+        _formatterSubstitute.ParameterStartIndex.Returns(1);
+        _formatterSubstitute.FormatIdentifier("firstname").Returns("\"firstname\"");
+        _formatterSubstitute.GetParameterName(1).Returns("$1");
+
+        // Act
+        var result = sut.Process(clauses);
+
+        // Assert
+        result.Conditions.Should().ContainSingle().Which.Should().Be("\"firstname\" = $1");
+        result.BindingValues.Should().ContainSingle().Which.Should().Be("Ali");
+    }
+
+    [Fact]
+    public void Process_Should_ReplaceWithDBNullValue_When_ValueIsNull()
     {
         // Arrange
         var clauses = new List<WhereCondition> { new("firstname", null!) };
@@ -73,6 +126,39 @@ public class WhereConditionProcessorTests
         var result = sut.Process(clauses);
 
         // Assert
+        result.Conditions.Should().ContainSingle().Which.Should().Be("\"firstname\" = $1");
         result.BindingValues.Should().ContainSingle().Which.Should().Be(DBNull.Value);
     }
+
+    [Fact]
+    public void Process_Should_FormatMultipleConditionsInOrder_When_MultipleClausesProvided()
+    {
+        // Arrange
+        var clauses = new List<WhereCondition>
+        {
+            new("ismale", false),
+            new("grade", 19.24m),
+            new("age", 20)
+        };
+
+        _formatterSubstitute.ParameterStartIndex.Returns(1);
+        _formatterSubstitute.FormatIdentifier("ismale").Returns("\"ismale\"");
+        _formatterSubstitute.FormatIdentifier("grade").Returns("\"grade\"");
+        _formatterSubstitute.FormatIdentifier("age").Returns("\"age\"");
+
+        _formatterSubstitute.GetParameterName(1).Returns("$1");
+        _formatterSubstitute.GetParameterName(2).Returns("$2");
+        _formatterSubstitute.GetParameterName(3).Returns("$3");
+
+        // Act
+        var result = sut.Process(clauses);
+
+        // Assert
+        var expectedConditions = new[] { "\"ismale\" = $1", "\"grade\" = $2", "\"age\" = $3" };
+        var expectedBindings = new object[] { false, 19.24m, 20 };
+
+        result.Conditions.Should().Equal(expectedConditions);
+        result.BindingValues.Should().Equal(expectedBindings);
+    }
+    
 }
