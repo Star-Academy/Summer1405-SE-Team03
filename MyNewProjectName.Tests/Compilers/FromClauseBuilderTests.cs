@@ -22,32 +22,45 @@ public class FromClauseBuilderTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenFormatterIsNull()
     {
-        // act
+        // Arrange & Act
         var nullAction = () => new FromClauseBuilder(null!);
-        // assert
+        
+        // Assert
         nullAction.Should().Throw<ArgumentNullException>().WithParameterName("databaseSpecificSyntaxFormatter");
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Constructor_ShouldThrowInvalidOperationException_WhenFormatterIsWhitespace(string invalidFormatter)
+    [InlineData(null)]
+    public void Build_ShouldThrowInvalidOperationException_WhenTableNameIsEmptyOrWhitespace(string invalidTableName)
     {
-        var invalidQuery = new Query().From(invalidFormatter);
+        // Arrange
+        var invalidQuery = new Query();
+        if (invalidTableName != null)
+        {
+            invalidQuery.From(invalidTableName);
+        }
+
+        // Act
         Action act = () => _sut.Build(invalidQuery);
+        
+        // Assert
         act.Should().Throw<InvalidOperationException>().WithMessage("Table name cannot be null or empty.");
     }
 
     [Fact]
-    public void Constructor_ShouldThrowArgumentNullException_WhenFromClauseBuilderIsValid()
+    public void Build_ShouldReturnFormattedString_WhenTableNameIsValid()
     {
-        //arrangr
+        // Arrange
         var validQuery = new Query().From("student");
         _formatterSubstitute.FormatIdentifier("student").Returns("\"student\"");
-        //act
-        var validResult = _sut.Build(validQuery);
-        //assert
-        validResult.Should().Be(" FROM \"student\"");
+        
+        // Act
+        var result = _sut.Build(validQuery);
+        
+        // Assert
+        result.Should().Be(" FROM \"student\"");
         _formatterSubstitute.Received(1).FormatIdentifier("student");
     }
 }

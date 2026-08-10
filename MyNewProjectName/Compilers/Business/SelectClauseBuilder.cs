@@ -17,6 +17,11 @@ internal sealed class SelectClauseBuilder : ISelectClauseBuilder
 
     public string Build(Query query)
     {
+        if (query.Columns == null || !query.Columns.Any())
+        {
+            return "SELECT * ";
+        }
+
         var quotedColumns = query.Columns.Select(c => _databaseSpecificSyntaxFormatter.FormatIdentifier(c));
         return "SELECT " + string.Join(", ", quotedColumns);
     }

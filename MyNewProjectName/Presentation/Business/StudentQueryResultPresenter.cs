@@ -1,16 +1,23 @@
+using System;
 using System.Data;
 using MyNewProjectName.Presentation.Abstractions;
 
-namespace MyNewProjectName.Presentation.Business
+namespace MyNewProjectName.Presentation.Business;
+
+internal sealed class StudentQueryResultPresenter : IQueryResultPresenter
 {
-    internal sealed class StudentQueryResultPresenter : IQueryResultPresenter
+    private readonly IRowFormatter _rowFormatter;
+
+    public StudentQueryResultPresenter(IRowFormatter rowFormatter)
     {
-        public void PresentResults(IDataReader reader)
+        _rowFormatter = rowFormatter ?? throw new ArgumentNullException(nameof(rowFormatter));
+    }
+
+    public void PresentResults(IDataReader reader)
+    {
+        while (reader.Read())
         {
-            while (reader.Read())
-            {
-                Console.WriteLine($"Student Number: {reader["studentnumber"]}, Name: {reader["firstname"]}");
-            }
+            Console.WriteLine(_rowFormatter.FormatRow(reader));
         }
     }
 }

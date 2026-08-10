@@ -20,12 +20,14 @@ internal sealed class PostgresQueryParameterBinder : IQueryParameterBinder
         ArgumentNullException.ThrowIfNull(query);
 
         var resultQueryParameter = new List<QueryParameter>();
+        var index = _databaseSpecificSyntaxFormatter.ParameterStartIndex;
 
         foreach (var parameter in query.WhereConditions)
         {
-            resultQueryParameter.Add(new QueryParameter(string.Empty, parameter.Value));
+            var bindName = _databaseSpecificSyntaxFormatter.GetParameterName(index);
+            resultQueryParameter.Add(new QueryParameter(bindName, parameter.Value));
+            index++;
         }
-
         return resultQueryParameter;
     }
 }

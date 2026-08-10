@@ -26,7 +26,7 @@ public class PostgresSyntaxFormatterTests
     public void GetParameterName_ShouldReturnParameterWithDollarPrefix_WhenIndexIsProvided(int index)
     {
         var postgresResultFormatter = _sut.GetParameterName(index);
-        postgresResultFormatter.Should().Be($"${index}");
+        postgresResultFormatter.Should().Be($"@{index}");
     }
 
     [Fact]
