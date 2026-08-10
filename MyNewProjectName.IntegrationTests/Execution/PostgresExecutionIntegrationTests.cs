@@ -461,4 +461,127 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         //assert
         act.Should().Throw<InvalidOperationException>();
     }
+    [Fact]
+    public async Task ExecuteQuery_ShouldReturnAllColumns_WhenNoSelectClauseIsProvided()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        createCommand.CommandText = @"
+            DROP TABLE IF EXISTS student;
+            CREATE TABLE student(
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100),
+                ismale BOOLEAN,
+                grade DECIMAL
+            );
+            INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES (1, 'Amir', true, 18.24)";
+        await createCommand.ExecuteNonQueryAsync();
+
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter), new FromClauseBuilder(postgresSyntaxFormatter), new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+        
+        int fieldCount = 0;
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<System.Data.IDataReader>(0);
+            fieldCount = systemDataReader.FieldCount; 
+            while (systemDataReader.Read()) { } 
+        });
+
+        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString), new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        
+        var query = new Query().From("student");
+
+        //act
+        queryExecutionOrchestrator.ExecuteQuery(query);
+
+        //assert
+        fieldCount.Should().Be(4); 
+    }
+
+    [Fact]
+    public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenStringConditionIsProvided()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        createCommand.CommandText = @"
+            DROP TABLE IF EXISTS student;
+            CREATE TABLE student(
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100)
+            );
+            INSERT INTO student(studentnumber, firstname) VALUES (1, 'Amir'), (2, 'Mahdi'), (3, 'Zahra')";
+        await createCommand.ExecuteNonQueryAsync();
+
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter), new FromClauseBuilder(postgresSyntaxFormatter), new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+        
+        var countOfMatchedRows = 0;
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<System.Data.IDataReader>(0);
+            while (systemDataReader.Read()) countOfMatchedRows++;
+        });
+
+        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString), new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        
+        var query = new Query().From("student").Select("studentnumber").Where("firstname", "Amir");
+
+        //act
+        queryExecutionOrchestrator.ExecuteQuery(query);
+
+        //assert
+        countOfMatchedRows.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ExecuteQuery_ShouldHandleSpacesInTableAndColumnNames_WhenFormatIdentifierIsUsed()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        
+        createCommand.CommandText = @"
+            DROP TABLE IF EXISTS ""my students"";
+            CREATE TABLE ""my students""(
+                ""student id"" INT PRIMARY KEY,
+                ""first name"" VARCHAR(100)
+            );
+            INSERT INTO ""my students""(""student id"", ""first name"") VALUES (1, 'Amir')";
+        await createCommand.ExecuteNonQueryAsync();
+
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter), new FromClauseBuilder(postgresSyntaxFormatter), new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+        
+        var countOfMatchedRows = 0;
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<System.Data.IDataReader>(0);
+            while (systemDataReader.Read()) countOfMatchedRows++;
+        });
+
+        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString), new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        
+        var query = new Query().From("my students").Select("first name").Where("first name", "Amir");
+
+        //act
+        queryExecutionOrchestrator.ExecuteQuery(query);
+
+        //assert
+        countOfMatchedRows.Should().Be(1);
+    }
 }
