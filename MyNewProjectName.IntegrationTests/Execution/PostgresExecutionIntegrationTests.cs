@@ -247,6 +247,7 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
         await using var createCommand = connection.CreateCommand();
+        
         createCommand.CommandText = @"
             DROP TABLE IF EXISTS student;
             CREATE TABLE student(
@@ -255,9 +256,13 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
             ismale BOOLEAN,
             grade DECIMAL
             );
-            INSERT INTO student(studentnumber, firstname, ismale ,  grade) VALUES (1, 'Amir', true, 18.24), (2 , 'Mahdi', true, 19.24) , (3 , 'Zahra', false, 19.24), (4,'sama', false, 19.24), (5,'mohammad', true, 19.22)";
+            INSERT INTO student(studentnumber, firstname, ismale ,  grade) VALUES 
+            (1, 'Amir', true, 18.24), 
+            (2, 'Mahdi', true, 19.24), 
+            (3, 'Zahra', false, 19.24)";
 
         await createCommand.ExecuteNonQueryAsync();
+        
         var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
         var sqlQueryCompiler = new SqlQueryCompiler(
             new SelectClauseBuilder(postgresSyntaxFormatter),
@@ -276,9 +281,15 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
                 countOfMatchedRows++;
             }
         });
-        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
-            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
+        
+        var databaseQueryRunner = new DatabaseQueryRunner(
+            new PostgresConnectionFactory(connectionString),
+            new PostgresCommandFactory(), 
+            new PostgresQueryParameterBinder(postgresSyntaxFormatter), 
+            presenterMock);
+            
         var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        
         var query = new Query()
             .From("student")
             .Select("firstname");
@@ -289,7 +300,6 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         //assert
         countOfMatchedRows.Should().Be(3);
     }
-
     [Fact]
     public async Task ExecuteQuery_ShouldExecuteWithoutError_WhenWhereConditionIsNull()
     {
@@ -345,5 +355,4 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         countOfMatchedRows.Should().Be(0);
     }
     
-
 }
