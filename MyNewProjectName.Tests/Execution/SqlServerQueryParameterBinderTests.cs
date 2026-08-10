@@ -23,6 +23,7 @@ public class SqlServerQueryParameterBinderTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenFormatterIsNull()
     {
+        // arrange
         //act
         Action act = () => new SqlServerQueryParameterBinder(null!);
 
@@ -34,6 +35,7 @@ public class SqlServerQueryParameterBinderTests
     [Fact]
     public void BindParameters_ShouldThrowArgumentNullException_WhenQueryIsNull()
     {
+        // arrange
         //act
         Action act = () => _sut.BindParameters(null!);
 

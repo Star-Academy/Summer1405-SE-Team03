@@ -21,30 +21,34 @@ public class SqlServerConnectionFactoryTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenConnectionStringIsNull()
     {
+        // arrange
         //act
         var act = () => new SqlServerConnectionFactory(null!);
         //assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("connectionString");
     }
     
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Constructor_ShouldThrowArgumentException_WhenConnectionStringIsEmptyOrWhitespace(string invalidConnectionString)
+    {
+        // arrange
+        //act
+        var emptyAct = () => new SqlServerConnectionFactory(invalidConnectionString);
+        //assert
+        emptyAct.Should().Throw<ArgumentException>();
+    }
+    
     [Fact]
     public void CreateConnection_ShouldReturnSqlConnection_WhenWeHaveCorrectConnectionString()
     {
+        // arrange
         //act
         var correctResult = _sut.CreateConnection();
         //assert
         correctResult.Should().NotBeNull();
         correctResult.Should().BeOfType<SqlConnection>();
         correctResult.ConnectionString.Should().Be(_validConnectionString);
-    }
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_ShouldThrowArgumentException_WhenConnectionStringIsEmptyOrWhitespace(string invalidConnectionString)
-    {
-        //act
-        var emptyAct = () => new SqlServerConnectionFactory(invalidConnectionString);
-        //assert
-        emptyAct.Should().Throw<ArgumentException>();
     }
 }

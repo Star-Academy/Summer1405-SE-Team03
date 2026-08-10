@@ -21,30 +21,34 @@ public class PostgresConnectionFactoryTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenConnectionStringIsNull()
     {
+        // arrange
         //act
         var act = () => new PostgresConnectionFactory(null!);
         //assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("connectionString");
     }
     
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Constructor_ShouldThrowArgumentException_WhenConnectionStringIsEmptyOrWhitespace(string invalidConnectionString)
+    {
+        // arrange
+        //act
+        var emptyAct = () => new PostgresConnectionFactory(invalidConnectionString);
+        //assert
+        emptyAct.Should().Throw<ArgumentException>();
+    }
+    
     [Fact]
     public void CreateConnection_ShouldReturnNpgsqlConnection_WhenWeHaveCorrectConnectionString()
     {
+        // arrange
         //act
         var correctResult = _sut.CreateConnection();
         //assert
         correctResult.Should().NotBeNull();
         correctResult.Should().BeOfType<NpgsqlConnection>();
         correctResult.ConnectionString.Should().Be(_validConnectionString);
-    }
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_ShouldThrowArgumentException_WhenConnectionStringIsEmptyOrWhitespace(string invalidConnectionString)
-    {
-        //act
-        var emptyAct = () => new PostgresConnectionFactory(invalidConnectionString);
-        //assert
-        emptyAct.Should().Throw<ArgumentException>();
     }
 }

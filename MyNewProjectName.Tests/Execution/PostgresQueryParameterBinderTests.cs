@@ -12,7 +12,7 @@ namespace MyNewProjectName.Tests.Execution;
 public class PostgresQueryParameterBinderTests
 {
     private readonly PostgresQueryParameterBinder _sut;
-    private readonly IDatabaseSpecificSyntaxFormatter _formatterSubstitute ;
+    private readonly IDatabaseSpecificSyntaxFormatter _formatterSubstitute;
 
     public PostgresQueryParameterBinderTests()
     {
@@ -23,6 +23,7 @@ public class PostgresQueryParameterBinderTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenFormatterIsNull()
     {
+        // arrange
         //act
         Action act = () => new PostgresQueryParameterBinder(null!);
 
@@ -34,6 +35,7 @@ public class PostgresQueryParameterBinderTests
     [Fact]
     public void BindParameters_ShouldThrowArgumentNullException_WhenQueryIsNull()
     {
+        // arrange
         //act
         Action act = () => _sut.BindParameters(null!);
 
