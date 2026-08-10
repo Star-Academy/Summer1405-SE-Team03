@@ -22,7 +22,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         _fixture = fixture;
     }
 
-    // 1. اتصال پایه به دیتابیس
     [Fact]
     public async Task CanConnectToDatabase_ShouldReturnOne_WhenSimpleQueryIsExecuted()
     {
@@ -41,7 +40,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         int.Parse(result.ToString() ?? "").Should().Be(1);
     }
 
-    // 2. کوئری ساده بدون شرط
     [Fact]
     public async Task ExecuteQuery_ShouldReturnAllInsertedRows_WhenNoWhereConditionIsProvided()
     {
@@ -104,7 +102,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         countOfMatchedRows.Should().Be(3);
     }
 
-    // 3. انتخاب ستون‌های مشخص
     [Fact]
     public async Task ExecuteQuery_ShouldReturnOnlySelectedColumns_WhenSpecificColumnsAreProvided()
     {
@@ -164,7 +161,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         columnNames.Should().Contain("ismale");
     }
 
-    // 4. شرط روی نوع داده بولی
     [Fact]
     public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenBoolConditionIsProvided()
     {
@@ -213,7 +209,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         countOfMatchedRows.Should().Be(2);
     }
 
-    // 5. شرط روی نوع داده اعشاری
     [Fact]
     public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenDecimalConditionIsProvided()
     {
@@ -262,7 +257,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         countOfMatchedRows.Should().Be(3);
     }
 
-    // 6. ترکیبی از چند شرط WHERE
     [Fact]
     public async Task ExecuteQuery_ShouldReturnCorrectData_WhenAllTheWhereConditionsProvided()
     {
@@ -314,7 +308,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         returnName.Should().Be("Mahdi");
     }
 
-    // 7. حالت مرزی: نتیجه خالی
     [Fact]
     public async Task ExecuteQuery_ShouldReturnZeroRows_WhenNoMatchingDataExists()
     {
@@ -363,7 +356,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         countOfMatchedRows.Should().Be(0);
     }
 
-    // 8. حالت مرزی: مقدار Null
     [Fact]
     public async Task ExecuteQuery_ShouldExecuteWithoutError_WhenWhereConditionIsNull()
     {
@@ -425,5 +417,39 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         //assert
         nullAct.Should().NotThrow();
         countOfMatchedRows.Should().Be(0);
+    }
+    [Fact]
+    public void ExecuteQuery_ShouldThrowInvalidOperationException_WhenDatabaseThrowsException()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+
+        var sqlServerSyntaxFormatter = new SqlServerSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(
+            new SelectClauseBuilder(sqlServerSyntaxFormatter),
+            new FromClauseBuilder(sqlServerSyntaxFormatter),
+            new WhereClauseBuilder(new WhereConditionProcessor(sqlServerSyntaxFormatter))
+        );
+
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+
+        var databaseQueryRunner = new DatabaseQueryRunner(
+            new SqlServerConnectionFactory(connectionString), 
+            new SqlServerCommandFactory(), 
+            new SqlServerQueryParameterBinder(sqlServerSyntaxFormatter), 
+            presenterMock
+        );
+
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        
+        var query = new Query()
+            .From("table_that_does_not_exist")
+            .Select("some_column");
+
+        //act
+        var act = () => queryExecutionOrchestrator.ExecuteQuery(query);
+
+        //assert
+        act.Should().Throw<InvalidOperationException>();
     }
 }
