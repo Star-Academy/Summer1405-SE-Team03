@@ -10,6 +10,7 @@ using MyNewProjectName.Presentation.Abstractions;
 using Npgsql;
 using NSubstitute;
 using Xunit;
+
 namespace MyNewProjectName.IntegrationTests.Execution;
 
 public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseFixture>
@@ -21,224 +22,26 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         _fixture = fixture;
     }
 
+    // 1. اتصال پایه به دیتابیس
     [Fact]
     public async Task CanConnectToDatabase_ShouldReturnOne_WhenSimpleQueryIsExecuted()
     {
         //arrange
         var connectionString = _fixture.ConnectionString;
         await using var connection = new NpgsqlConnection(connectionString);
+        
         //act
         await connection.OpenAsync();
         await using var command = connection.CreateCommand();
         command.CommandText = "SELECT 1";
         var result = await command.ExecuteScalarAsync();
+        
         //assert
         result.Should().NotBeNull();
         long.Parse(result.ToString() ?? "").Should().Be(1);
     }
 
-    [Fact]
-    public async Task ExecuteQuery_ShouldReturnCorrectData_WhenAllTheWhereConditionsProvided()
-    {
-        //arrange
-        var connectionString = _fixture.ConnectionString;
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
-        await using var createCommand = connection.CreateCommand();
-        createCommand.CommandText = @"
-            DROP TABLE IF EXISTS student;
-            CREATE TABLE student(
-            studentnumber INT PRIMARY KEY,
-            firstname VARCHAR(100),
-            ismale BOOLEAN,
-            grade DECIMAL
-            );
-            INSERT INTO student(studentnumber, firstname, ismale ,  grade) VALUES (1, 'Amir', true, 18.24), (2 , 'Mahdi', true, 19.24) , (3 , 'Zahra', false, 19.24)";
-        await createCommand.ExecuteNonQueryAsync();
-        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
-        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter),
-            new FromClauseBuilder(postgresSyntaxFormatter),
-            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
-        var presenterMock = Substitute.For<IQueryResultPresenter>();
-        var countOfMatchedRows = 0;
-        string? returnName = null;
-        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
-        {
-            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
-            while (systemDataReader.Read())
-            {
-                countOfMatchedRows++;
-                returnName = systemDataReader["firstname"].ToString();
-            }
-        });
-        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
-            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
-        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
-        var query = new Query()
-            .From("student")
-            .Select("firstname")
-            .Where("ismale", true)
-            .Where("grade", 19.24m);
-        //act
-        queryExecutionOrchestrator.ExecuteQuery(query);
-        //assert
-        countOfMatchedRows.Should().Be(1);
-        returnName.Should().Be("Mahdi");
-    }
-
-    [Fact]
-    public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenBoolConditionIsProvided()
-    {
-        //arrange
-        var connectionString = _fixture.ConnectionString;
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
-        await using var createCommand = connection.CreateCommand();
-        createCommand.CommandText = @"
-            DROP TABLE IF EXISTS student;
-            CREATE TABLE student(
-            studentnumber INT PRIMARY KEY,
-            firstname VARCHAR(100),
-            ismale BOOLEAN,
-            grade DECIMAL
-            );
-            INSERT INTO student(studentnumber, firstname, ismale ,  grade) VALUES (1, 'Amir', true, 18.24), (2 , 'Mahdi', true, 19.24) , (3 , 'Zahra', false, 19.24)";
-
-        await createCommand.ExecuteNonQueryAsync();
-
-        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
-        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter),
-            new FromClauseBuilder(postgresSyntaxFormatter),
-            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
-        var presenterMock = Substitute.For<IQueryResultPresenter>();
-
-        var countOfMatchedRows = 0;
-        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
-        {
-            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
-            while (systemDataReader.Read())
-            {
-                countOfMatchedRows++;
-            }
-        });
-        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
-            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
-        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
-        var query = new Query()
-            .From("student")
-            .Select("firstname")
-            .Where("ismale", true);
-
-        //act
-        queryExecutionOrchestrator.ExecuteQuery(query);
-
-        //assert
-        countOfMatchedRows.Should().Be(2);
-
-    }
-
-    [Fact]
-    public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenDecimalConditionIsProvided()
-    {
-        //arrange
-        var connectionString = _fixture.ConnectionString;
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
-        await using var createCommand = connection.CreateCommand();
-        createCommand.CommandText = @"
-            DROP TABLE IF EXISTS student;
-            CREATE TABLE student(
-            studentnumber INT PRIMARY KEY,
-            firstname VARCHAR(100),
-            ismale BOOLEAN,
-            grade DECIMAL
-            );
-            INSERT INTO student(studentnumber, firstname, ismale ,  grade) VALUES (1, 'Amir', true, 18.24), (2 , 'Mahdi', true, 19.24) , (3 , 'Zahra', false, 19.24), (4,'sama', false, 19.24), (5,'mohammad', true, 19.22)";
-
-        await createCommand.ExecuteNonQueryAsync();
-
-        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
-        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter),
-            new FromClauseBuilder(postgresSyntaxFormatter),
-            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
-        var presenterMock = Substitute.For<IQueryResultPresenter>();
-
-        var countOfMatchedRows = 0;
-        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
-        {
-            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
-            while (systemDataReader.Read())
-            {
-                countOfMatchedRows++;
-            }
-        });
-        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
-            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
-        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
-        var query = new Query()
-            .From("student")
-            .Select("firstname")
-            .Where("grade", 19.24m);
-
-        //act
-        queryExecutionOrchestrator.ExecuteQuery(query);
-
-        //assert
-        countOfMatchedRows.Should().Be(3);
-
-    }
-
-    [Fact]
-    public async Task ExecuteQuery_ShouldReturnZeroRows_WhenNoMatchingDataExists()
-    {
-        //arrange
-        var connectionString = _fixture.ConnectionString;
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
-        await using var createCommand = connection.CreateCommand();
-        createCommand.CommandText = @"
-            DROP TABLE IF EXISTS student;
-            CREATE TABLE student(
-            studentnumber INT PRIMARY KEY,
-            firstname VARCHAR(100),
-            ismale BOOLEAN,
-            grade DECIMAL
-            );
-            INSERT INTO student(studentnumber, firstname, ismale ,  grade) VALUES (1, 'Amir', true, 18.24), (2 , 'Mahdi', true, 19.24) , (3 , 'Zahra', false, 19.24), (4,'sama', false, 19.24), (5,'mohammad', true, 19.22)";
-
-        await createCommand.ExecuteNonQueryAsync();
-
-        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
-        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter),
-            new FromClauseBuilder(postgresSyntaxFormatter),
-            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
-        var presenterMock = Substitute.For<IQueryResultPresenter>();
-
-        var countOfMatchedRows = 0;
-        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
-        {
-            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
-            while (systemDataReader.Read())
-            {
-                countOfMatchedRows++;
-            }
-        });
-        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
-            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
-        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
-        var query = new Query()
-            .From("student")
-            .Select("firstname")
-            .Where("grade", 100m);
-
-        //act
-        queryExecutionOrchestrator.ExecuteQuery(query);
-
-        //assert
-        countOfMatchedRows.Should().Be(0);
-
-    }
-
+    // 2. کوئری ساده بدون شرط
     [Fact]
     public async Task ExecuteQuery_ShouldReturnAllInsertedRows_WhenNoWhereConditionIsProvided()
     {
@@ -251,12 +54,12 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         createCommand.CommandText = @"
             DROP TABLE IF EXISTS student;
             CREATE TABLE student(
-            studentnumber INT PRIMARY KEY,
-            firstname VARCHAR(100),
-            ismale BOOLEAN,
-            grade DECIMAL
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100),
+                ismale BOOLEAN,
+                grade DECIMAL
             );
-            INSERT INTO student(studentnumber, firstname, ismale ,  grade) VALUES 
+            INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES 
             (1, 'Amir', true, 18.24), 
             (2, 'Mahdi', true, 19.24), 
             (3, 'Zahra', false, 19.24)";
@@ -300,60 +103,8 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         //assert
         countOfMatchedRows.Should().Be(3);
     }
-    [Fact]
-    public async Task ExecuteQuery_ShouldExecuteWithoutError_WhenWhereConditionIsNull()
-    {
-        //act
-        var connectionString = _fixture.ConnectionString;
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
-        await using var createCommand = connection.CreateCommand();
-        createCommand.CommandText = @"
-        CREATE TABLE IF NOT EXISTS student(
-            studentnumber INT PRIMARY KEY,
-            firstname VARCHAR(100),
-            ismale BOOLEAN,
-            grade DECIMAL
-        );
-        TRUNCATE TABLE student;
-        INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES 
-        (1, 'Amir', true, 18.24), 
-        (2, NULL, true, 19.24);";
-        await createCommand.ExecuteNonQueryAsync();
-        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
-        var sqlQueryCompiler = new SqlQueryCompiler(
-            new SelectClauseBuilder(postgresSyntaxFormatter),new FromClauseBuilder(postgresSyntaxFormatter),new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
-        var presenterMock = Substitute.For<IQueryResultPresenter>();
-        var countOfMatchedRows = 0;
-    
-        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
-        {
-            var systemDataReader = callInfo.ArgAt<System.Data.IDataReader>(0);
-            while (systemDataReader.Read())
-            {
-                countOfMatchedRows++;
-            }
-        });
 
-        var databaseQueryRunner = new DatabaseQueryRunner(
-            new PostgresConnectionFactory(connectionString), 
-            new PostgresCommandFactory(), 
-            new PostgresQueryParameterBinder(postgresSyntaxFormatter), 
-            presenterMock
-        );
-
-        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
-    
-        var query = new Query()
-            .From("student")
-            .Select("studentnumber")
-            .Where("firstname", null);
-        //act
-        var nullAct = () => queryExecutionOrchestrator.ExecuteQuery(query);
-        //assert
-        nullAct.Should().NotThrow();
-        countOfMatchedRows.Should().Be(0);
-    }
+    // 3. انتخاب ستون‌های مشخص
     [Fact]
     public async Task ExecuteQuery_ShouldReturnOnlySelectedColumns_WhenSpecificColumnsAreProvided()
     {
@@ -363,19 +114,19 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         await connection.OpenAsync();
         await using var createCommand = connection.CreateCommand();
         createCommand.CommandText = @"
-        DROP TABLE IF EXISTS student;
-        CREATE TABLE student(
-        studentnumber INT PRIMARY KEY,
-        firstname VARCHAR(100),
-        ismale BOOLEAN,
-        grade DECIMAL
-        );
-        INSERT INTO student(studentnumber, firstname, ismale , grade) VALUES 
-        (1, 'Amir', true, 18.24), 
-        (2 , 'Mahdi', true, 19.24) , 
-        (3 , 'Zahra', false, 19.24), 
-        (4,'sama', false, 19.24), 
-        (5,'mohammad', true, 19.22)";
+            DROP TABLE IF EXISTS student;
+            CREATE TABLE student(
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100),
+                ismale BOOLEAN,
+                grade DECIMAL
+            );
+            INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES 
+            (1, 'Amir', true, 18.24), 
+            (2, 'Mahdi', true, 19.24), 
+            (3, 'Zahra', false, 19.24), 
+            (4, 'sama', false, 19.24), 
+            (5, 'mohammad', true, 19.22)";
 
         await createCommand.ExecuteNonQueryAsync();
 
@@ -422,5 +173,266 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         columnNames.Count.Should().Be(2);
         columnNames.Should().Contain("firstname");
         columnNames.Should().Contain("ismale");
+    }
+
+    // 4. شرط روی نوع داده بولی
+    [Fact]
+    public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenBoolConditionIsProvided()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        createCommand.CommandText = @"
+            DROP TABLE IF EXISTS student;
+            CREATE TABLE student(
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100),
+                ismale BOOLEAN,
+                grade DECIMAL
+            );
+            INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES (1, 'Amir', true, 18.24), (2, 'Mahdi', true, 19.24), (3, 'Zahra', false, 19.24)";
+
+        await createCommand.ExecuteNonQueryAsync();
+
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter),
+            new FromClauseBuilder(postgresSyntaxFormatter),
+            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+
+        var countOfMatchedRows = 0;
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
+            while (systemDataReader.Read())
+            {
+                countOfMatchedRows++;
+            }
+        });
+        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
+            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        var query = new Query()
+            .From("student")
+            .Select("firstname")
+            .Where("ismale", true);
+
+        //act
+        queryExecutionOrchestrator.ExecuteQuery(query);
+
+        //assert
+        countOfMatchedRows.Should().Be(2);
+    }
+
+    // 5. شرط روی نوع داده اعشاری
+    [Fact]
+    public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenDecimalConditionIsProvided()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        createCommand.CommandText = @"
+            DROP TABLE IF EXISTS student;
+            CREATE TABLE student(
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100),
+                ismale BOOLEAN,
+                grade DECIMAL
+            );
+            INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES (1, 'Amir', true, 18.24), (2, 'Mahdi', true, 19.24), (3, 'Zahra', false, 19.24), (4, 'sama', false, 19.24), (5, 'mohammad', true, 19.22)";
+
+        await createCommand.ExecuteNonQueryAsync();
+
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter),
+            new FromClauseBuilder(postgresSyntaxFormatter),
+            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+
+        var countOfMatchedRows = 0;
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
+            while (systemDataReader.Read())
+            {
+                countOfMatchedRows++;
+            }
+        });
+        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
+            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        var query = new Query()
+            .From("student")
+            .Select("firstname")
+            .Where("grade", 19.24m);
+
+        //act
+        queryExecutionOrchestrator.ExecuteQuery(query);
+
+        //assert
+        countOfMatchedRows.Should().Be(3);
+    }
+
+    // 6. ترکیبی از چند شرط WHERE
+    [Fact]
+    public async Task ExecuteQuery_ShouldReturnCorrectData_WhenAllTheWhereConditionsProvided()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        createCommand.CommandText = @"
+            DROP TABLE IF EXISTS student;
+            CREATE TABLE student(
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100),
+                ismale BOOLEAN,
+                grade DECIMAL
+            );
+            INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES (1, 'Amir', true, 18.24), (2, 'Mahdi', true, 19.24), (3, 'Zahra', false, 19.24)";
+        await createCommand.ExecuteNonQueryAsync();
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter),
+            new FromClauseBuilder(postgresSyntaxFormatter),
+            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+        var countOfMatchedRows = 0;
+        string? returnName = null;
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
+            while (systemDataReader.Read())
+            {
+                countOfMatchedRows++;
+                returnName = systemDataReader["firstname"].ToString();
+            }
+        });
+        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
+            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        var query = new Query()
+            .From("student")
+            .Select("firstname")
+            .Where("ismale", true)
+            .Where("grade", 19.24m);
+        //act
+        queryExecutionOrchestrator.ExecuteQuery(query);
+        //assert
+        countOfMatchedRows.Should().Be(1);
+        returnName.Should().Be("Mahdi");
+    }
+
+    // 7. حالت مرزی: نتیجه خالی
+    [Fact]
+    public async Task ExecuteQuery_ShouldReturnZeroRows_WhenNoMatchingDataExists()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        createCommand.CommandText = @"
+            DROP TABLE IF EXISTS student;
+            CREATE TABLE student(
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100),
+                ismale BOOLEAN,
+                grade DECIMAL
+            );
+            INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES (1, 'Amir', true, 18.24), (2, 'Mahdi', true, 19.24), (3, 'Zahra', false, 19.24), (4, 'sama', false, 19.24), (5, 'mohammad', true, 19.22)";
+
+        await createCommand.ExecuteNonQueryAsync();
+
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(new SelectClauseBuilder(postgresSyntaxFormatter),
+            new FromClauseBuilder(postgresSyntaxFormatter),
+            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+
+        var countOfMatchedRows = 0;
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
+            while (systemDataReader.Read())
+            {
+                countOfMatchedRows++;
+            }
+        });
+        var databaseQueryRunner = new DatabaseQueryRunner(new PostgresConnectionFactory(connectionString),
+            new PostgresCommandFactory(), new PostgresQueryParameterBinder(postgresSyntaxFormatter), presenterMock);
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        var query = new Query()
+            .From("student")
+            .Select("firstname")
+            .Where("grade", 100m);
+
+        //act
+        queryExecutionOrchestrator.ExecuteQuery(query);
+
+        //assert
+        countOfMatchedRows.Should().Be(0);
+    }
+
+    // 8. حالت مرزی: مقدار Null
+    [Fact]
+    public async Task ExecuteQuery_ShouldExecuteWithoutError_WhenWhereConditionIsNull()
+    {
+        //act
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        createCommand.CommandText = @"
+            DROP TABLE IF EXISTS student;
+            CREATE TABLE student(
+                studentnumber INT PRIMARY KEY,
+                firstname VARCHAR(100),
+                ismale BOOLEAN,
+                grade DECIMAL
+            );
+            INSERT INTO student(studentnumber, firstname, ismale, grade) VALUES 
+            (1, 'Amir', true, 18.24), 
+            (2, NULL, true, 19.24);";
+        await createCommand.ExecuteNonQueryAsync();
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(
+            new SelectClauseBuilder(postgresSyntaxFormatter), new FromClauseBuilder(postgresSyntaxFormatter), new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter)));
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+        var countOfMatchedRows = 0;
+    
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<System.Data.IDataReader>(0);
+            while (systemDataReader.Read())
+            {
+                countOfMatchedRows++;
+            }
+        });
+
+        var databaseQueryRunner = new DatabaseQueryRunner(
+            new PostgresConnectionFactory(connectionString), 
+            new PostgresCommandFactory(), 
+            new PostgresQueryParameterBinder(postgresSyntaxFormatter), 
+            presenterMock
+        );
+
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+    
+        var query = new Query()
+            .From("student")
+            .Select("studentnumber")
+            .Where("firstname", null);
+            
+        //act
+        var nullAct = () => queryExecutionOrchestrator.ExecuteQuery(query);
+        
+        //assert
+        nullAct.Should().NotThrow();
+        countOfMatchedRows.Should().Be(0);
     }
 }
