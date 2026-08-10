@@ -23,7 +23,8 @@ public class WhereClauseBuilderTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenProcessorIsNull()
     {
-        // Arrange & Act
+        // Arrange
+        // Act
         var action = () => new WhereClauseBuilder(null!);
 
         // Assert
@@ -121,7 +122,7 @@ public class WhereClauseBuilderTests
     }
 
     [Fact]
-    public void Build_ShouldReturnAndJoinedSql_WhenQueryHasMultipleWhereConditions()
+    public void Build_ShouldReturnAndJoinedSqlQuery_WhenQueryHasMultipleWhereConditions()
     {
         // Arrange
         var query = new Query()

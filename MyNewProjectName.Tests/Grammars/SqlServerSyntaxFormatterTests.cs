@@ -16,8 +16,13 @@ public class SqlServerSyntaxFormatterTests
     [Fact]
     public void FormatIdentifier_ShouldWrapStringInBrackets_WhenCalledWithValidString()
     {
+        // Arrange
         var columnName = "studentnumber";
+
+        // Act
         var result = _sut.FormatIdentifier(columnName);
+
+        // Assert
         result.Should().Be("[studentnumber]");
     }
 
@@ -26,14 +31,22 @@ public class SqlServerSyntaxFormatterTests
     [InlineData(2)]
     public void GetParameterName_ShouldReturnParameterWithAtPrefixedAtP_WhenIndexIsProvided(int index)
     {
+        // Arrange
+        // Act
         var result = _sut.GetParameterName(index);
+
+        // Assert
         result.Should().Be($"@p{index}");
     }
 
     [Fact]
     public void ParametrStartIndex_ShouldBeZero_WhenYouWantToAccessTheDatabase()
     {
+        // Arrange
+        // Act
         var result = _sut.ParameterStartIndex;
+
+        // Assert
         result.Should().Be(0);
     }
 }

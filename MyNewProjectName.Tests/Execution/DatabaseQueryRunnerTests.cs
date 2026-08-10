@@ -32,7 +32,8 @@ public class DatabaseQueryRunnerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenDbConnectionFactoryIsNull()
     {
-        // Arrange & Act
+        // Arrange
+        // Act
         var action = () => new DatabaseQueryRunner(null!, _dbCommandFactory, _queryParameterBinder, _queryResultPresenter);
 
         // Assert
@@ -43,7 +44,8 @@ public class DatabaseQueryRunnerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenDbCommandFactoryIsNull()
     {
-        // Arrange & Act
+        // Arrange
+        // Act
         var action = () => new DatabaseQueryRunner(_dbConnectionFactory, null!, _queryParameterBinder, _queryResultPresenter);
 
         // Assert
@@ -54,7 +56,8 @@ public class DatabaseQueryRunnerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryParameterBinderIsNull()
     {
-        // Arrange & Act
+        // Arrange
+        // Act
         var action = () => new DatabaseQueryRunner(_dbConnectionFactory, _dbCommandFactory, null!, _queryResultPresenter);
 
         // Assert
@@ -65,7 +68,8 @@ public class DatabaseQueryRunnerTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryResultPresenterIsNull()
     {
-        // Arrange & Act
+        // Arrange
+        // Act
         var action = () => new DatabaseQueryRunner(_dbConnectionFactory, _dbCommandFactory, _queryParameterBinder, null!);
 
         // Assert

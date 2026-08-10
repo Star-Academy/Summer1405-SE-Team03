@@ -28,8 +28,10 @@ public class StudentQueryResultPresenterTests
         using var reader = table.CreateDataReader();
         using var stringWriter = new StringWriter();
         Console.SetOut(stringWriter);
+        
         //act
         _sut.PresentResults(reader);
+        
         //assert
         var output = stringWriter.ToString();
         var expectedOutput = $"studentnumber: {studentNumber}, firstname: {firstName}";

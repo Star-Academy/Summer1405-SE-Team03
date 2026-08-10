@@ -1,10 +1,13 @@
+using FluentAssertions;
 using MyNewProjectName.Core;
 using Xunit;
 
 namespace MyNewProjectName.Tests.Core;
+
 public class QueryTests 
 {
     private readonly Query _sut;
+
     public QueryTests()
     {
         _sut = new Query();
@@ -13,39 +16,47 @@ public class QueryTests
     [Fact]
     public void Constructor_ShouldHaveDefaultValuesWhenInitialized()
     {
-        Assert.Equal(string.Empty, _sut.TableName);
-        Assert.Empty(_sut.Columns);
-        Assert.Empty(_sut.WhereConditions);
+        // Arrange
+        // Act
+        // Assert
+        _sut.TableName.Should().BeEmpty();
+        _sut.Columns.Should().BeEmpty();
+        _sut.WhereConditions.Should().BeEmpty();
     }
     
     [Fact]
     public void From_ShouldSetTableNameAndReturnSelf_WhenTableNameIsProvided()
     {
-        var result = _sut.From("student");
+        // Arrange
+        var tableName = "student";
 
-        Assert.Equal("student", _sut.TableName);
-        Assert.Same(_sut, result);
+        // Act
+        var result = _sut.From(tableName);
+
+        // Assert
+        _sut.TableName.Should().Be(tableName);
+        result.Should().BeSameAs(_sut);
     }
 
     [Fact]
     public void Select_ShouldAppendColumnsAndReturnSelf_WhenColumnsAreProvided()
     {
+        // Arrange
+        var expectedColumns = new[] { "studentnumber", "firstname", "lastname" };
+
+        // Act
         var result = _sut.Select("studentnumber").Select("firstname", "lastname");
 
-        Assert.Equal(new[] { "studentnumber", "firstname", "lastname" }, _sut.Columns);
-        Assert.Same(_sut, result);
+        // Assert
+        _sut.Columns.Should().Equal(expectedColumns);
+        result.Should().BeSameAs(_sut);
     }
 
     [Fact]
     public void Where_ShouldAddConditionsAndReturnSelf_WhenConditionsAreProvided()
     {
+        // Arrange
         var query = new Query();
-
-        var result = query
-            .Where("ismale", false)
-            .Where("grade", 19.24m)
-            .Where("age", 18, ">");
-
         var expectedConditions = new[]
         {
             new WhereCondition("ismale", false, "="),
@@ -53,24 +64,35 @@ public class QueryTests
             new WhereCondition("age", 18, ">")
         };
 
-        Assert.Equal(expectedConditions, query.WhereConditions);
-        Assert.Same(query, result);
+        // Act
+        var result = query
+            .Where("ismale", false)
+            .Where("grade", 19.24m)
+            .Where("age", 18, ">");
+
+        // Assert
+        query.WhereConditions.Should().Equal(expectedConditions);
+        result.Should().BeSameAs(query);
     }
 
     [Fact]
     public void Query_ShouldSupportMethodChaining_WhenMultipleMethodsAreChained()
     {
+        // Arrange
         var query = new Query();
+        var expectedColumns = new[] { "studentnumber", "firstname" };
 
+        // Act
         var result = query
             .From("student")
             .Select("studentnumber", "firstname")
             .Where("ismale", false)
             .Where("grade", 19.24m);
 
-        Assert.Same(query, result);
-        Assert.Equal("student", query.TableName);
-        Assert.Equal(new[] { "studentnumber", "firstname" }, query.Columns);
-        Assert.Equal(2, query.WhereConditions.Count);
+        // Assert
+        result.Should().BeSameAs(query);
+        query.TableName.Should().Be("student");
+        query.Columns.Should().Equal(expectedColumns);
+        query.WhereConditions.Should().HaveCount(2);
     }
 }
