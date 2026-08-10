@@ -27,7 +27,6 @@ internal sealed class SqlQueryCompiler : ISqlQueryCompiler
         var whereClause = _whereClauseBuilder.Build(query);
 
         var fullSql = $"{selectClause}{fromClause}{whereClause.SqlText}";
-
-        return new CompiledQuery(fullSql, whereClause.BindingValues);
+        return new CompiledQuery(fullSql);
     }
 }

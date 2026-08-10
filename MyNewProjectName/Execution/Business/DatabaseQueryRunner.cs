@@ -10,15 +10,18 @@ namespace MyNewProjectName.Execution.Business;
 internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly IDbCommandFactory _dbCommandFactory;
     private readonly IQueryParameterBinder _queryParameterBinder;
     private readonly IQueryResultPresenter _queryResultPresenter;
 
     public DatabaseQueryRunner(
         IDbConnectionFactory dbConnectionFactory,
+        IDbCommandFactory dbCommandFactory,
         IQueryParameterBinder queryParameterBinder,
         IQueryResultPresenter queryResultPresenter)
     {
         _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
+        _dbCommandFactory = dbCommandFactory ?? throw new ArgumentNullException(nameof(dbCommandFactory));
         _queryParameterBinder = queryParameterBinder ?? throw new ArgumentNullException(nameof(queryParameterBinder));
         _queryResultPresenter = queryResultPresenter ?? throw new ArgumentNullException(nameof(queryResultPresenter));
     }
@@ -29,8 +32,8 @@ internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
         {
             using var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
-            using var command = connection.CreateCommand();
-            command.CommandText = compiledQuery.SqlQuery;
+            
+            using var command = _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection);
 
             var parameters = _queryParameterBinder.BindParameters(originalQuery);
             foreach (var param in parameters)

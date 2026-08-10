@@ -18,19 +18,15 @@ internal sealed class WhereConditionProcessor : IWhereConditionProcessor
     public ProcessedWhereConditions Process(IList<WhereCondition> clauses)
     {
         var conditions = new List<string>();
-        var bindingValues = new List<object>();
-        
         var index = _databaseSpecificSyntaxFormatter.ParameterStartIndex;
 
         foreach (var condition in clauses)
         {
             var paramName = _databaseSpecificSyntaxFormatter.GetParameterName(index);
             conditions.Add($"{_databaseSpecificSyntaxFormatter.FormatIdentifier(condition.ColumnName)} = {paramName}");
-            
-            bindingValues.Add(condition.Value ?? DBNull.Value);
             index++;
         }
 
-        return new ProcessedWhereConditions(conditions, bindingValues);
+        return new ProcessedWhereConditions(conditions);
     }
 }

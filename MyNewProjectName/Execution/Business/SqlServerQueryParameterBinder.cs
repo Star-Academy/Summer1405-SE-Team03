@@ -17,6 +17,8 @@ internal sealed class SqlServerQueryParameterBinder : IQueryParameterBinder
 
     public IReadOnlyList<QueryParameter> BindParameters(Query query)
     {
+        ArgumentNullException.ThrowIfNull(query);
+
         var resultQueryParameter = new List<QueryParameter>();
         var index = _databaseSpecificSyntaxFormatter.ParameterStartIndex;
 

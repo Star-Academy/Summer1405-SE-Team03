@@ -1,7 +1,6 @@
 ﻿namespace MyNewProjectName.Core;
 
-public class CompiledQuery(string sqlQuery, IList<object> bindings)
-{
+public class CompiledQuery(string sqlQuery)
+{ 
     public string SqlQuery { get; } = sqlQuery;
-    public IList<object> Bindings { get; } = bindings;
 }
