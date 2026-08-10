@@ -14,7 +14,7 @@ public class QueryTests
     }
     
     [Fact]
-    public void Constructor_ShouldHaveDefaultValuesWhenInitialized()
+    public void Constructor_ShouldHaveDefaultValues_WhenInitialized()
     {
         // Arrange
         // Act
