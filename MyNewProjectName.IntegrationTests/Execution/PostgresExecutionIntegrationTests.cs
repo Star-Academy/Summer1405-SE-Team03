@@ -354,5 +354,73 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         nullAct.Should().NotThrow();
         countOfMatchedRows.Should().Be(0);
     }
-    
+    [Fact]
+    public async Task ExecuteQuery_ShouldReturnOnlySelectedColumns_WhenSpecificColumnsAreProvided()
+    {
+        //arrange
+        var connectionString = _fixture.ConnectionString;
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using var createCommand = connection.CreateCommand();
+        createCommand.CommandText = @"
+        DROP TABLE IF EXISTS student;
+        CREATE TABLE student(
+        studentnumber INT PRIMARY KEY,
+        firstname VARCHAR(100),
+        ismale BOOLEAN,
+        grade DECIMAL
+        );
+        INSERT INTO student(studentnumber, firstname, ismale , grade) VALUES 
+        (1, 'Amir', true, 18.24), 
+        (2 , 'Mahdi', true, 19.24) , 
+        (3 , 'Zahra', false, 19.24), 
+        (4,'sama', false, 19.24), 
+        (5,'mohammad', true, 19.22)";
+
+        await createCommand.ExecuteNonQueryAsync();
+
+        var postgresSyntaxFormatter = new PostgresSyntaxFormatter();
+        var sqlQueryCompiler = new SqlQueryCompiler(
+            new SelectClauseBuilder(postgresSyntaxFormatter),
+            new FromClauseBuilder(postgresSyntaxFormatter),
+            new WhereClauseBuilder(new WhereConditionProcessor(postgresSyntaxFormatter))
+        );
+        var presenterMock = Substitute.For<IQueryResultPresenter>();
+
+        var countOfMatchedRows = 0;
+        var columnNames = new List<string>();
+        presenterMock.When(x => x.PresentResults(Arg.Any<System.Data.IDataReader>())).Do(callInfo =>
+        {
+            var systemDataReader = callInfo.ArgAt<IDataReader>(0);
+            for (int i = 0; i < systemDataReader.FieldCount; i++)
+            {
+                columnNames.Add(systemDataReader.GetName(i));
+            }
+
+            while (systemDataReader.Read())
+            {
+                countOfMatchedRows++;
+            }
+        });
+
+        var databaseQueryRunner = new DatabaseQueryRunner(
+            new PostgresConnectionFactory(connectionString),
+            new PostgresCommandFactory(),
+            new PostgresQueryParameterBinder(postgresSyntaxFormatter),
+            presenterMock
+        );
+        var queryExecutionOrchestrator = new QueryExecutionOrchestrator(sqlQueryCompiler, databaseQueryRunner);
+        var query = new Query()
+            .From("student")
+            .Select("firstname", "ismale");
+
+        //act
+        queryExecutionOrchestrator.ExecuteQuery(query);
+
+        //assert
+        countOfMatchedRows.Should().Be(5);
+        columnNames.Count.Should().Be(2);
+        columnNames.Should().Contain("firstname");
+        columnNames.Should().Contain("ismale");
+    }
 }
