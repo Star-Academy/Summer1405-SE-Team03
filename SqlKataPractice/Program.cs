@@ -1,5 +1,7 @@
-﻿using SqlKata;
+﻿using Npgsql;
+using SqlKata;
 using SqlKata.Compilers;
+using SqlKata.Execution;
 
 var query = new Query("Students")
     .Select("studentnumber", "firstname")
@@ -41,3 +43,18 @@ for (int i = 0; i < sqlServerResult.Bindings.Count; i++)
 
     Console.WriteLine($"@p{i} = {value}");
 }
+
+var npgsqlConnection = new NpgsqlConnection(Environment.GetEnvironmentVariable("POSTGRES_CONNECTION"));
+var queryFactory = new QueryFactory(npgsqlConnection , postgresCompiler , 30);
+var students = queryFactory.Query()
+    .From("student")
+    .Select("studentnumber", "firstname")
+    .Where("ismale", false)
+    .Where("grade", 19.24m).Get();
+
+Console.WriteLine(new string('-', 20));
+
+foreach (var student in students)
+    {
+    Console.WriteLine($"{student.studentnumber} - {student.firstname}");
+    }
