@@ -46,8 +46,12 @@ var sqlOrchestrator = new QueryExecutionOrchestrator(
     sqlRunner
 );
 
-pgOrchestrator.ExecuteQuery(query);
-sqlOrchestrator.ExecuteQuery(query);
+var postgresReader = pgOrchestrator.ExecuteQuery(query);
+presenter.PresentResults(postgresReader);
+
+var sqlServerReader = sqlOrchestrator.ExecuteQuery(query);
+presenter.PresentResults(sqlServerReader);
+
 
 return;
 

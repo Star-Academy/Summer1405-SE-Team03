@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using MyNewProjectName.Compilers.Abstractions;
 using MyNewProjectName.Core;
 using MyNewProjectName.Execution.Abstractions;
@@ -18,9 +19,9 @@ internal sealed class QueryExecutionOrchestrator : IQueryExecutor
         _dbRunner = dbRunner ?? throw new ArgumentNullException(nameof(dbRunner));
     }
 
-    public void ExecuteQuery(Query query)
+    public IDataReader ExecuteQuery(Query query)
     {
         var compiledResult = _compiler.Compile(query);
-        _dbRunner.QueryRunner(compiledResult, query);
+        return _dbRunner.QueryRunner(compiledResult, query);
     }
 }

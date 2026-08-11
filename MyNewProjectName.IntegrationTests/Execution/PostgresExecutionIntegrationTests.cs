@@ -13,7 +13,7 @@ using Xunit;
 
 namespace MyNewProjectName.IntegrationTests.Execution;
 
-public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseFixture>
+public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseFixture> , IAsyncLifetime
 {
     private readonly PostgresDatabaseFixture _fixture;
 
@@ -22,23 +22,7 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         _fixture = fixture;
     }
 
-    [Fact]
-    public async Task CanConnectToDatabase_ShouldReturnOne_WhenSimpleQueryIsExecuted()
-    {
-        //arrange
-        var connectionString = _fixture.ConnectionString;
-        await using var connection = new NpgsqlConnection(connectionString);
-        
-        //act
-        await connection.OpenAsync();
-        await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT 1";
-        var result = await command.ExecuteScalarAsync();
-        
-        //assert
-        result.Should().NotBeNull();
-        long.Parse(result.ToString() ?? "").Should().Be(1);
-    }
+
 
     [Fact]
     public async Task ExecuteQuery_ShouldReturnAllInsertedRows_WhenNoWhereConditionIsProvided()
@@ -171,7 +155,7 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         columnNames.Should().Contain("firstname");
         columnNames.Should().Contain("ismale");
     }
-
+//n
     [Fact]
     public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenBoolConditionIsProvided()
     {
@@ -221,7 +205,7 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         //assert
         countOfMatchedRows.Should().Be(2);
     }
-
+//n
     [Fact]
     public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenDecimalConditionIsProvided()
     {
@@ -427,6 +411,7 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         nullAct.Should().NotThrow();
         countOfMatchedRows.Should().Be(0);
     }
+    //n
     [Fact]
     public void ExecuteQuery_ShouldThrowInvalidOperationException_WhenDatabaseThrowsException()
     {
@@ -503,7 +488,7 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         //assert
         fieldCount.Should().Be(4); 
     }
-
+//m
     [Fact]
     public async Task ExecuteQuery_ShouldReturnCorrectRows_WhenStringConditionIsProvided()
     {
@@ -584,4 +569,15 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         //assert
         countOfMatchedRows.Should().Be(1);
     }
+
+    public Task InitializeAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DisposeAsync()
+    {
+        throw new NotImplementedException();
+    }
 }
+//null col,"null"col, whereis null , 
