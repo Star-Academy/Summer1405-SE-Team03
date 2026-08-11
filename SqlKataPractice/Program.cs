@@ -5,7 +5,11 @@ var query = new Query("Students")
     .Select("studentnumber", "firstname")
     .Where("ismale", false)
     .Where("grade", ">=", 19.24)
-    .Where("firstname", "Reza");
+    .Where("firstname", "Reza")
+    .Join("Courses" , "Students.classId", "Courses.classId" , "=" , "outer join")
+    .OrderBy("grade")
+    .Limit(100)
+    .WhereBetween("grade", 18, 19.99);
 
 var postgresCompiler = new PostgresCompiler();
 var postgresResult = postgresCompiler.Compile(query);
