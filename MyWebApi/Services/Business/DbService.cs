@@ -23,7 +23,7 @@ public class DbService : IDbService
         {
             throw new ArgumentNullException("dbType is null or empty");
         }
-        switch (dbType)
+        switch (dbType.ToLowerInvariant())
         {
             case "postgres":
             {
@@ -42,7 +42,7 @@ public class DbService : IDbService
                 var connectionString = _configuration.GetConnectionString("SqlServerConnection");
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    throw new InvalidOperationException("Postgres connection string not set");
+                    throw new InvalidOperationException("SqlServer connection string not set");
                 }
                 var sqlserverConnection = new SqlConnection(connectionString);
                 var queryFactory = new QueryFactory(sqlserverConnection, new SqlServerCompiler(), 30);
