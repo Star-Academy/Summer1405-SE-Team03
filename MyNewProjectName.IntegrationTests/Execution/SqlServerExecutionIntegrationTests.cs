@@ -16,11 +16,11 @@ namespace MyNewProjectName.IntegrationTests.Execution;
 public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabaseFixture>, IAsyncLifetime
 {
     private QueryExecutionOrchestrator _sut = null!;
-    private readonly SqlServerDatabaseFixture _fixture;
+    private readonly SqlServerDatabaseFixture _serverDatabaseFixture;
 
-    public SqlServerExecutionIntegrationTests(SqlServerDatabaseFixture fixture)
+    public SqlServerExecutionIntegrationTests(SqlServerDatabaseFixture serverDatabaseFixture)
     {
-        _fixture = fixture;
+        _serverDatabaseFixture = serverDatabaseFixture;
     }
 
     public Task InitializeAsync()
@@ -33,7 +33,7 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         );
 
         var runner = new DatabaseQueryRunner(
-            new SqlServerConnectionFactory(_fixture.ConnectionString),
+            new SqlServerConnectionFactory(_serverDatabaseFixture.ConnectionString),
             new SqlServerCommandFactory(),
             new SqlServerQueryParameterBinder(formatter),
             Substitute.For<IQueryResultPresenter>()

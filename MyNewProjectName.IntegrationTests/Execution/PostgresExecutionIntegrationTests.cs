@@ -16,11 +16,11 @@ namespace MyNewProjectName.IntegrationTests.Execution;
 public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseFixture>, IAsyncLifetime
 {
     private QueryExecutionOrchestrator _sut = null!;
-    private readonly PostgresDatabaseFixture _fixture;
+    private readonly PostgresDatabaseFixture _postgresDatabaseFixture;
 
-    public PostgresExecutionIntegrationTests(PostgresDatabaseFixture fixture)
+    public PostgresExecutionIntegrationTests(PostgresDatabaseFixture postgresDatabaseFixture)
     {
-        _fixture = fixture;
+        _postgresDatabaseFixture = postgresDatabaseFixture;
     }
 
     public Task InitializeAsync()
@@ -33,7 +33,7 @@ public class PostgresExecutionIntegrationTests : IClassFixture<PostgresDatabaseF
         );
 
         var runner = new DatabaseQueryRunner(
-            new PostgresConnectionFactory(_fixture.ConnectionString),
+            new PostgresConnectionFactory(_postgresDatabaseFixture.ConnectionString),
             new PostgresCommandFactory(),
             new PostgresQueryParameterBinder(formatter),
             Substitute.For<IQueryResultPresenter>()
