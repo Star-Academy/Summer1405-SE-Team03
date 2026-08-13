@@ -1,34 +1,22 @@
-### ==========================================
-### 1. دریافت همه دانشجوها (GET All)
-### ==========================================
-
-# تست روی PostgreSQL
+### 1. Get all students (PostgreSQL)
 GET http://localhost:5052/api/students?db=postgres
 
-###
-
-# تست روی SQL Server
+### 2. Get all students (SQL Server)
 GET http://localhost:5052/api/students?db=sqlserver
 
 
-### ==========================================
-### 2. ساخت دانشجوی جدید (POST)
-### ==========================================
-
-# افزودن دانشجو در PostgreSQL
+### 3. Create student - Success (PostgreSQL)
 POST http://localhost:5052/api/students?db=postgres
 Content-Type: application/json
 
 {
   "studentNumber": 40110001,
-  "firstName": "mehdi",
+  "firstName": "Mehdi",
   "isMale": true,
   "grade": 18.5
 }
 
-###
-
-# افزودن دانشجو در SQL Server
+### 4. Create student - Success (SQL Server)
 POST http://localhost:5052/api/students?db=sqlserver
 Content-Type: application/json
 
@@ -39,26 +27,71 @@ Content-Type: application/json
   "grade": 19.25
 }
 
+### 5. Create student - Fail (Duplicate Student Number -> Expects 409 Conflict)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
 
-### ==========================================
-### 3. دریافت یک دانشجو با شماره دانشجویی (GET By ID)
-### ==========================================
+{
+  "studentNumber": 40110001,
+  "firstName": "Mehdi Duplicate",
+  "isMale": true,
+  "grade": 15.0
+}
 
-# دریافت از PostgreSQL
+### 6. Create student - Fail (Invalid Student Number <= 0 -> Expects 400 Bad Request)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": -5,
+  "firstName": "Ali",
+  "isMale": true,
+  "grade": 17.0
+}
+
+### 7. Create student - Fail (First Name > 50 characters -> Expects 400 Bad Request)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110003,
+  "firstName": "ThisIsAVeryLongNameThatExceedsTheFiftyCharacterLimitAllowedByTheDatabaseSchema",
+  "isMale": true,
+  "grade": 16.0
+}
+
+### 8. Create student - Fail (Grade > 20 -> Expects 400 Bad Request)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110004,
+  "firstName": "Reza",
+  "isMale": true,
+  "grade": 22.5
+}
+
+### 9. Create student - Fail (Grade < 0 -> Expects 400 Bad Request)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110005,
+  "firstName": "Mina",
+  "isMale": false,
+  "grade": -2.0
+}
+
+
+### 10. Get student by ID (PostgreSQL)
 GET http://localhost:5052/api/students/40110001?db=postgres
 
-###
-
-# دریافت از SQL Server
+### 11. Get student by ID (SQL Server)
 GET http://localhost:5052/api/students/40110002?db=sqlserver
 
 
-### ==========================================
-### 4. به‌روزرسانی اطلاعات دانشجو (PUT)
-### ==========================================
-
-# ویرایش دانشجو در PostgreSQL
-PUT http://localhost:5052/api/students/104?db=postgres
+### 12. Update student - Success (PostgreSQL)
+PUT http://localhost:5052/api/students/40110001?db=postgres
 Content-Type: application/json
 
 {
@@ -67,23 +100,53 @@ Content-Type: application/json
   "grade": 19.75
 }
 
+### 13. Update student - Fail (Invalid Route ID <= 0 -> Expects 400 Bad Request)
+PUT http://localhost:5052/api/students/0?db=postgres
+Content-Type: application/json
 
-### ==========================================
-### 5. حذف دانشجو (DELETE)
-### ==========================================
+{
+  "firstName": "Ahmad",
+  "isMale": true,
+  "grade": 19.75
+}
 
-# حذف از PostgreSQL
-DELETE http://localhost:5052/api/students/0?db=postgres
+### 14. Update student - Fail (First Name > 50 characters -> Expects 400 Bad Request)
+PUT http://localhost:5052/api/students/40110001?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "ThisIsAVeryLongNameThatExceedsTheFiftyCharacterLimitAllowedByTheDatabaseSchema",
+  "isMale": true,
+  "grade": 18.0
+}
+
+### 15. Update student - Fail (Grade > 20 -> Expects 400 Bad Request)
+PUT http://localhost:5052/api/students/40110001?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "Ahmad",
+  "isMale": true,
+  "grade": 25.0
+}
+
+### 16. Update student - Fail (Student Not Found -> Expects 404 Not Found)
+PUT http://localhost:5052/api/students/99999999?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "Ghost",
+  "isMale": true,
+  "grade": 15.0
+}
 
 
-### ==========================================
-### 6. تست سناریوهای خطا (پاسخ‌های واضح)
-### ==========================================
+### 17. Delete student - Success (PostgreSQL)
+DELETE http://localhost:5052/api/students/40110001?db=postgres
 
-# ۱. انتخاب دیتابیس نامعتبر (باید خطای 400 Bad Request برگرداند)
+### 18. Delete student - Fail (Student Not Found -> Expects 404 Not Found)
+DELETE http://localhost:5052/api/students/99999999?db=postgres
+
+
+### 19. Invalid database parameter (Expects 400 Bad Request)
 GET http://localhost:5052/api/students?db=oracle
-
-###
-
-# ۲. جستجوی دانشجویی که وجود ندارد (باید خطای 404 Not Found برگرداند)
-GET http://localhost:5052/api/students/99999999?db=postgres
