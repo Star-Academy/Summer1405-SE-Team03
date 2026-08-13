@@ -126,7 +126,7 @@ public class StudentsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update([FromRoute] int id, [FromQuery] string db, [FromBody] Student student)
+    public IActionResult Update([FromRoute] int id, [FromQuery] string db, [FromBody] Student? student)
     {
         try
         {
@@ -134,7 +134,7 @@ public class StudentsController : ControllerBase
             {
                 return BadRequest(new { error = "Student number must be greater than zero." });
             }
-
+            
             if (student == null)
             {
                 return BadRequest(new { error = "Student data is required." });
@@ -145,7 +145,7 @@ public class StudentsController : ControllerBase
                 return BadRequest(new { error = "First name cannot exceed 50 characters." });
             }
 
-            if (student.Grade < 0 || student.Grade > 20)
+            if (student.Grade is < 0 or > 20)
             {
                 return BadRequest(new { error = "Grade must be between 0 and 20." });
             }
