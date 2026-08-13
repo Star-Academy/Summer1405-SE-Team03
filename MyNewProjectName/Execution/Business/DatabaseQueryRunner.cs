@@ -28,10 +28,10 @@ internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
     {
         try
         {
-            using var connection = _dbConnectionFactory.CreateConnection();
+             var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
             
-            using var command = _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection);
+             var command = _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection);
 
             var parameters = _queryParameterBinder.BindParameters(originalQuery);
             foreach (var param in parameters)

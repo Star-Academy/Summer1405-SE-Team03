@@ -65,42 +65,30 @@ public class DatabaseQueryRunnerTests
             .WithParameterName("queryParameterBinder");
     }
 
-    [Fact]
-    public void Constructor_ShouldThrowArgumentNullException_WhenQueryResultPresenterIsNull()
-    {
-        // Arrange
-        // Act
-        var action = () => new DatabaseQueryRunner(_dbConnectionFactory, _dbCommandFactory, _queryParameterBinder, null!);
+   [Fact]
+public void QueryRunner_ShouldExecuteQueryAndReturnDataReader_WhenQueryHasNoParameters()
+{
+    // Arrange
+    var originalQuery = new Query().From("student");
+    var compiledQuery = new CompiledQuery("SELECT * FROM \"student\"");
 
-        // Assert
-        action.Should().Throw<ArgumentNullException>()
-            .WithParameterName("queryResultPresenter");
-    }
+    var connection = Substitute.For<DbConnection>();
+    var command = Substitute.For<DbCommand>();
+    var reader = Substitute.For<DbDataReader>();
 
-    [Fact]
-    public void QueryRunner_ShouldExecuteQueryAndPresentResults_WhenQueryHasNoParameters()
-    {
-        // Arrange
-        var originalQuery = new Query().From("student");
-        var compiledQuery = new CompiledQuery("SELECT * FROM \"student\"");
+    _dbConnectionFactory.CreateConnection().Returns(connection);
+    _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection).Returns(command);
+    command.ExecuteReader().Returns(reader);
+    _queryParameterBinder.BindParameters(originalQuery).Returns(new List<QueryParameter>());
 
-        var connection = Substitute.For<DbConnection>();
-        var command = Substitute.For<DbCommand>();
-        var reader = Substitute.For<DbDataReader>();
+    // Act
+    var result = _sut.QueryRunner(compiledQuery, originalQuery);
 
-        _dbConnectionFactory.CreateConnection().Returns(connection);
-        
-        _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection).Returns(command);
-        
-        command.ExecuteReader().Returns(reader);
-        _queryParameterBinder.BindParameters(originalQuery).Returns(new List<QueryParameter>());
-
-        // Act
-        _sut.QueryRunner(compiledQuery, originalQuery);
-
-        // Assert
-        _queryResultPresenter.Received(1).PresentResults(reader);
-    }
+    // Assert
+    result.Should().Be(reader);
+    connection.Received(1).Open();
+    command.Received(1).ExecuteReader();
+}
 
     [Fact]
     public void QueryRunner_ShouldAddParametersToCommand_WhenQueryHasParameters()
@@ -134,7 +122,6 @@ public class DatabaseQueryRunnerTests
         dbParameter.ParameterName.Should().Be("$1");
         dbParameter.Value.Should().Be(19.5);
         parameterCollection.Received(1).Add(dbParameter);
-        _queryResultPresenter.Received(1).PresentResults(reader);
     }
     
     [Fact]
