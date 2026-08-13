@@ -12,21 +12,22 @@ public class DbService : IDbService
 {
     public QueryFactory GetQueryFactory(string dbType)
     {
-        if (!string.IsNullOrEmpty(dbType = "postgres"))
+        switch (dbType)
         {
-            var npgsqlConnection = new NpgsqlConnection(Environment.GetEnvironmentVariable("POSTGRES_CONNECTION"));
-            var queryFactory = new QueryFactory(npgsqlConnection, new PostgresCompiler(), 30);
-            return queryFactory;
-        }
-        else if (!string.IsNullOrEmpty(dbType = "sqlserver"))
-        {
-            var sqlserverConnection = new SqlConnection(Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION"));
-            var queryFactory = new QueryFactory(sqlserverConnection, new SqlServerCompiler(), 30);
-            return queryFactory;
-        }
-        else
-        {
-            throw new Exception("DB Type not set");
+            case "postgres":
+            {
+                var npgsqlConnection = new NpgsqlConnection(Environment.GetEnvironmentVariable("POSTGRES_CONNECTION"));
+                var queryFactory = new QueryFactory(npgsqlConnection, new PostgresCompiler(), 30);
+                return queryFactory;
+            }
+            case "sqlserver":
+            {
+                var sqlserverConnection = new SqlConnection(Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION"));
+                var queryFactory = new QueryFactory(sqlserverConnection, new SqlServerCompiler(), 30);
+                return queryFactory;
+            }
+            default:
+                throw new Exception("DB Type not set");
         }
     }
 }
