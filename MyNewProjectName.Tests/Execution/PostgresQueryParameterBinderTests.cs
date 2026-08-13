@@ -81,4 +81,26 @@ public class PostgresQueryParameterBinderTests
         result[1].Name.Should().Be("$2");
         result[1].Value.Should().Be(true);
     }
+    [Fact]
+    public void BindParameters_ShouldSkipNullValuesAndNotIncrementIndex_WhenValueIsNull()
+    {
+        //arrange
+        var query = new Query()
+            .Where("firstname", null!) 
+            .Where("age", 20);
+
+        _formatterSubstitute.ParameterStartIndex.Returns(1);
+        _formatterSubstitute.GetParameterName(1).Returns("$1");
+
+        //act
+        var result = _sut.BindParameters(query);
+
+        //assert
+        result.Should().ContainSingle();
+        
+        result[0].Name.Should().Be("$1");
+        result[0].Value.Should().Be(20);
+        
+        _formatterSubstitute.Received(1).GetParameterName(1);
+    }
 }

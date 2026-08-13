@@ -91,22 +91,21 @@ public class WhereConditionProcessorTests
     }
 
     [Fact]
-    public void Process_ShouldReplaceWithDBNullValue_WhenValueIsNull()
+    public void Process_ShouldGenerateIsNullCondition_WhenValueIsNull()
     {
         // Arrange
         var clauses = new List<WhereCondition> { new("firstname", null!) };
 
         _formatterSubstitute.ParameterStartIndex.Returns(1);
         _formatterSubstitute.FormatIdentifier("firstname").Returns("\"firstname\"");
-        _formatterSubstitute.GetParameterName(1).Returns("$1");
 
         // Act
         var result = _sut.Process(clauses);
 
         // Assert
-        result.Conditions.Should().ContainSingle().Which.Should().Be("\"firstname\" = $1");
+        result.Conditions.Should().ContainSingle().Which.Should().Be("\"firstname\" IS NULL");
     }
-
+    
     [Fact]
     public void Process_ShouldFormatMultipleConditionsInOrder_WhenMultipleClausesProvided()
     {

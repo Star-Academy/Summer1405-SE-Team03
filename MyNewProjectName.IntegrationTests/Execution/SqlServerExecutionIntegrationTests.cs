@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MyNewProjectName.Compilers.Business;
 using MyNewProjectName.Core;
@@ -12,11 +13,17 @@ using Xunit;
 
 namespace MyNewProjectName.IntegrationTests.Execution;
 
-public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabaseFixture>
+public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabaseFixture>, IAsyncLifetime
 {
-    private readonly QueryExecutionOrchestrator _sut;
+    private QueryExecutionOrchestrator _sut = null!;
+    private readonly SqlServerDatabaseFixture _fixture;
 
-    public SqlServerExecutionIntegrationTests(SqlServerDatabaseFixture serverDatabaseFixture)
+    public SqlServerExecutionIntegrationTests(SqlServerDatabaseFixture fixture)
+    {
+        _fixture = fixture;
+    }
+
+    public Task InitializeAsync()
     {
         var formatter = new SqlServerSyntaxFormatter();
         var compiler = new SqlQueryCompiler(
@@ -26,13 +33,20 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
         );
 
         var runner = new DatabaseQueryRunner(
-            new SqlServerConnectionFactory(serverDatabaseFixture.ConnectionString),
+            new SqlServerConnectionFactory(_fixture.ConnectionString),
             new SqlServerCommandFactory(),
             new SqlServerQueryParameterBinder(formatter),
             Substitute.For<IQueryResultPresenter>()
         );
 
         _sut = new QueryExecutionOrchestrator(compiler, runner);
+
+        return Task.CompletedTask;
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     [Fact]
@@ -150,37 +164,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
     }
 
     [Fact]
-    public void ExecuteQuery_ShouldExecuteWithoutError_WhenWhereConditionIsEqualToNull()
-    {
-        // arrange
-        var query = new Query().From("student").Select("studentnumber").Where("firstname", null);
-
-        // act
-        var act = () => _sut.ExecuteQuery(query);
-
-        // assert
-        act.Should().NotThrow();
-        using var reader = act();
-        var count = 0;
-        while (reader.Read()) count++;
-
-        count.Should().Be(1);
-    }
-
-    [Fact]
-    public void ExecuteQuery_ShouldThrowInvalidOperationException_WhenTableDoesNotExist()
-    {
-        // arrange
-        var query = new Query().From("table_that_does_not_exist").Select("some_column");
-
-        // act
-        var act = () => _sut.ExecuteQuery(query);
-
-        // assert
-        act.Should().Throw<InvalidOperationException>();
-    }
-
-    [Fact]
     public void ExecuteQuery_ShouldReturnAllColumns_WhenNoSelectClauseIsProvided()
     {
         // arrange
@@ -198,22 +181,6 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
     {
         // arrange
         var query = new Query().From("student").Select("studentnumber").Where("firstname", "Amir");
-
-        // act
-        using var reader = _sut.ExecuteQuery(query);
-
-        // assert
-        var count = 0;
-        while (reader.Read()) count++;
-
-        count.Should().Be(1);
-    }
-
-    [Fact]
-    public void ExecuteQuery_ShouldHandleSpacesInTableAndColumnNames_WhenFormatIdentifierIsUsed()
-    {
-        // arrange
-        var query = new Query().From("my students").Select("first name").Where("first name", "Amir");
 
         // act
         using var reader = _sut.ExecuteQuery(query);
@@ -281,6 +248,119 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
     }
 
     [Fact]
+    public void ExecuteQuery_ShouldThrowInvalidOperationException_WhenTableDoesNotExist()
+    {
+        // arrange
+        var query = new Query().From("NonExistentTable");
+
+        // act
+        var act = () => _sut.ExecuteQuery(query);
+
+        // assert
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void ExecuteQuery_ShouldThrowInvalidOperationException_WhenSelectColumnDoesNotExist()
+    {
+        // arrange
+        var query = new Query().From("student").Select("InvalidColumnName");
+
+        // act
+        var act = () => _sut.ExecuteQuery(query);
+
+        // assert
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void ExecuteQuery_ShouldThrowInvalidOperationException_WhenWhereColumnDoesNotExist()
+    {
+        // arrange
+        var query = new Query().From("student").Where("InvalidColumnName", "SomeValue");
+
+        // act
+        var act = () => _sut.ExecuteQuery(query);
+
+        // assert
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void ExecuteQuery_ShouldReturnMatchingRows_WhenWhereValueIsNull()
+    {
+        // arrange
+        var query = new Query().From("student").Where("firstname", null);
+
+        // act
+        using var reader = _sut.ExecuteQuery(query);
+
+        // assert
+        var count = 0;
+        while (reader.Read()) count++;
+
+        count.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void ExecuteQuery_ShouldReturnZeroRows_WhenFilteringByEmptyString()
+    {
+        // arrange
+        var query = new Query().From("student").Where("firstname", "");
+
+        // act
+        using var reader = _sut.ExecuteQuery(query);
+
+        // assert
+        var count = 0;
+        while (reader.Read()) count++;
+
+        count.Should().Be(0);
+    }
+
+    [Fact]
+    public void ExecuteQuery_ShouldHandleSpacesInTableName_WhenFormatIdentifierIsUsed()
+    {
+        // arrange
+        var query = new Query().From("my students");
+
+        // act
+        using var reader = _sut.ExecuteQuery(query);
+
+        // assert
+        var count = 0;
+        while (reader.Read()) count++;
+
+        count.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void ExecuteQuery_ShouldHandleSpacesInColumnName_WhenFormatIdentifierIsUsed()
+    {
+        // arrange
+        var query = new Query().From("my students").Select("student id");
+
+        // act
+        using var reader = _sut.ExecuteQuery(query);
+
+        // assert
+        var count = 0;
+        var hasColumn = false;
+
+        for (var i = 0; i < reader.FieldCount; i++)
+        {
+            if (reader.GetName(i) == "student id")
+            {
+                hasColumn = true;
+            }
+        }
+
+        while (reader.Read()) count++;
+
+        count.Should().BeGreaterThan(0);
+        hasColumn.Should().BeTrue();
+    }
+    [Fact]
     public void ExecuteQuery_ShouldReturnMatchingRows_WhenWhereConditionChecksForDatabaseNull()
     {
         // arrange
@@ -296,7 +376,7 @@ public class SqlServerExecutionIntegrationTests : IClassFixture<SqlServerDatabas
             count++;
             reader.IsDBNull(reader.GetOrdinal("firstname")).Should().BeTrue();
         }
-
+        
         count.Should().BeGreaterThan(0);
     }
 }

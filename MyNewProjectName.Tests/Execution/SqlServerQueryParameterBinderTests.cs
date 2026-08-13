@@ -23,11 +23,11 @@ public class SqlServerQueryParameterBinderTests
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenFormatterIsNull()
     {
-        // arrange
-        //act
+        // Arrange
+        // Act
         Action act = () => new SqlServerQueryParameterBinder(null!);
 
-        //assert
+        // Assert
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("formatter");
     }
@@ -35,11 +35,11 @@ public class SqlServerQueryParameterBinderTests
     [Fact]
     public void BindParameters_ShouldThrowArgumentNullException_WhenQueryIsNull()
     {
-        // arrange
-        //act
+        // Arrange
+        // Act
         Action act = () => _sut.BindParameters(null!);
 
-        //assert
+        // Assert
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("query");
     }
@@ -47,20 +47,20 @@ public class SqlServerQueryParameterBinderTests
     [Fact]
     public void BindParameters_ShouldReturnEmptyList_WhenWhereConditionsAreEmpty()
     {
-        //arrange
+        // Arrange
         var query = new Query();
 
-        //act
+        // Act
         var result = _sut.BindParameters(query);
 
-        //assert
+        // Assert
         result.Should().BeEmpty();
     }
 
     [Fact]
     public void BindParameters_ShouldReturnQueryParameters_WhenWhereConditionsAreProvided()
     {
-        //arrange
+        // Arrange
         var query = new Query()
             .Where("age", 20)
             .Where("ismale", true);
@@ -69,14 +69,37 @@ public class SqlServerQueryParameterBinderTests
         _formatterSubstitute.GetParameterName(0).Returns("@p0");
         _formatterSubstitute.GetParameterName(1).Returns("@p1");
 
-        //act
+        // Act
         var result = _sut.BindParameters(query);
 
-        //assert
+        // Assert
         result.Should().HaveCount(2);
         result[0].Name.Should().Be("@p0");
         result[0].Value.Should().Be(20);
         result[1].Name.Should().Be("@p1");
         result[1].Value.Should().Be(true);
+    }
+
+    [Fact]
+    public void BindParameters_ShouldSkipNullValuesAndNotIncrementIndex_WhenValueIsNull()
+    {
+        // Arrange
+        var query = new Query()
+            .Where("firstname", null!) 
+            .Where("age", 20);         
+
+        _formatterSubstitute.ParameterStartIndex.Returns(0);
+        _formatterSubstitute.GetParameterName(0).Returns("@p0");
+
+        // Act
+        var result = _sut.BindParameters(query);
+
+        // Assert
+        result.Should().ContainSingle(); 
+        
+        result[0].Name.Should().Be("@p0"); 
+        result[0].Value.Should().Be(20);
+        
+        _formatterSubstitute.Received(1).GetParameterName(0);
     }
 }
