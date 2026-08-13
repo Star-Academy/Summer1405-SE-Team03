@@ -1,0 +1,89 @@
+### ==========================================
+### 1. دریافت همه دانشجوها (GET All)
+### ==========================================
+
+# تست روی PostgreSQL
+GET http://localhost:5052/api/students?db=postgres
+
+###
+
+# تست روی SQL Server
+GET http://localhost:5052/api/students?db=sqlserver
+
+
+### ==========================================
+### 2. ساخت دانشجوی جدید (POST)
+### ==========================================
+
+# افزودن دانشجو در PostgreSQL
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110001,
+  "firstName": "Asghar",
+  "isMale": true,
+  "grade": 18.5
+}
+
+###
+
+# افزودن دانشجو در SQL Server
+POST http://localhost:5052/api/students?db=sqlserver
+Content-Type: application/json
+
+{
+  "studentNumber": 40110002,
+  "firstName": "Sara",
+  "isMale": false,
+  "grade": 19.25
+}
+
+
+### ==========================================
+### 3. دریافت یک دانشجو با شماره دانشجویی (GET By ID)
+### ==========================================
+
+# دریافت از PostgreSQL
+GET http://localhost:5052/api/students/40110001?db=postgres
+
+###
+
+# دریافت از SQL Server
+GET http://localhost:5052/api/students/40110002?db=sqlserver
+
+
+### ==========================================
+### 4. به‌روزرسانی اطلاعات دانشجو (PUT)
+### ==========================================
+
+# ویرایش دانشجو در PostgreSQL
+PUT http://localhost:5052/api/students/40110001?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "AliReza",
+  "isMale": true,
+  "grade": 19.75
+}
+
+
+### ==========================================
+### 5. حذف دانشجو (DELETE)
+### ==========================================
+
+# حذف از PostgreSQL
+DELETE http://localhost:5052/api/students/40110001?db=postgres
+
+
+### ==========================================
+### 6. تست سناریوهای خطا (پاسخ‌های واضح)
+### ==========================================
+
+# ۱. انتخاب دیتابیس نامعتبر (باید خطای 400 Bad Request برگرداند)
+GET http://localhost:5052/api/students?db=oracle
+
+###
+
+# ۲. جستجوی دانشجویی که وجود ندارد (باید خطای 404 Not Found برگرداند)
+GET http://localhost:5052/api/students/99999999?db=postgres

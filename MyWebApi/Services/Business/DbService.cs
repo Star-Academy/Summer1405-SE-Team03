@@ -1,33 +1,41 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 using SqlKata.Compilers;
-namespace MyWebApi.Services.Business;
-using MyWebApi.Services.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using SqlKata.Execution;
 using MyWebApi.Services.Abstractions;
+
+namespace MyWebApi.Services.Business;
+
 public class DbService : IDbService
 {
+    private readonly IConfiguration _configuration;
+
+    public DbService(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
     public QueryFactory GetQueryFactory(string dbType)
     {
-        switch (dbType)
+        if (string.IsNullOrWhiteSpace(dbType))
         {
-            case "postgres":
-            {
-                var npgsqlConnection = new NpgsqlConnection(Environment.GetEnvironmentVariable("POSTGRES_CONNECTION"));
-                var queryFactory = new QueryFactory(npgsqlConnection, new PostgresCompiler(), 30);
-                return queryFactory;
-            }
-            case "sqlserver":
-            {
-                var sqlserverConnection = new SqlConnection(Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION"));
-                var queryFactory = new QueryFactory(sqlserverConnection, new SqlServerCompiler(), 30);
-                return queryFactory;
-            }
-            default:
-                throw new Exception("DB Type not set");
+            throw new ArgumentException("پارامتر db مشخص نشده است.");
         }
+
+        return dbType.Trim().ToLower() switch
+        {
+            "postgres" => new QueryFactory(
+                new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnection")),
+                new PostgresCompiler(),
+                30),
+
+            "sqlserver" => new QueryFactory(
+                new SqlConnection(_configuration.GetConnectionString("SqlServerConnection")),
+                new SqlServerCompiler(),
+                30),
+
+            _ => throw new ArgumentException($"دیتابیس '{dbType}' نامعتبر است. مقادیر مجاز: postgres یا sqlserver")
+        };
     }
 }
