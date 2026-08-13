@@ -1,15 +1,19 @@
 ﻿using Microsoft.Data.SqlClient;
+using MyWebApi.Exceptions;
+using MyWebApi.Models;
+using MyWebApi.Services.Abstractions;
 using Npgsql;
 using SqlKata.Compilers;
-namespace MyWebApi.Services.Business;
-using MyWebApi.Services.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using SqlKata.Execution;
-using MyWebApi.Services.Abstractions;
+
+namespace MyWebApi.Services.Business;
+
 public class DbService : IDbService
 {
+    private const string PostgresConnectionName = "PostgresConnection";
+    private const string SqlServerConnectionName = "SqlServerConnection";
+    private const int QueryTimeoutSeconds = 30;
+
     private readonly IConfiguration _configuration;
 
     public DbService(IConfiguration configuration)
@@ -17,39 +21,58 @@ public class DbService : IDbService
         _configuration = configuration;
     }
 
-    public QueryFactory GetQueryFactory(string dbType)
+    public QueryFactory GetQueryFactory(string? dbType)
+    {
+        var databaseType = ParseDatabaseType(dbType);
+
+        return databaseType switch
+        {
+            DatabaseType.Postgres => CreatePostgresQueryFactory(),
+            DatabaseType.SqlServer => CreateSqlServerQueryFactory(),
+            _ => throw new InvalidDatabaseException("dbType is not valid.")
+        };
+    }
+
+    private static DatabaseType ParseDatabaseType(string? dbType)
     {
         if (string.IsNullOrWhiteSpace(dbType))
         {
-            throw new ArgumentNullException("dbType is null or empty");
+            throw new InvalidDatabaseException("dbType is required.");
         }
-        switch (dbType.ToLowerInvariant())
+
+        return dbType.Trim().ToLowerInvariant() switch
         {
-            case "postgres":
-            {
-                var connectionString = _configuration.GetConnectionString("PostgresConnection");
-                if (string.IsNullOrEmpty(connectionString))
-                {
-                    throw new InvalidOperationException("Postgres connection string not set");
-                }
-                var npgsqlConnection = new NpgsqlConnection(connectionString);
-                
-                var queryFactory = new QueryFactory(npgsqlConnection, new PostgresCompiler(), 30);
-                return queryFactory;
-            }
-            case "sqlserver":
-            {
-                var connectionString = _configuration.GetConnectionString("SqlServerConnection");
-                if (string.IsNullOrEmpty(connectionString))
-                {
-                    throw new InvalidOperationException("SqlServer connection string not set");
-                }
-                var sqlserverConnection = new SqlConnection(connectionString);
-                var queryFactory = new QueryFactory(sqlserverConnection, new SqlServerCompiler(), 30);
-                return queryFactory;
-            }
-            default:
-                throw new ArgumentOutOfRangeException("dbType is not valid");
+            "postgres" => DatabaseType.Postgres,
+            "sqlserver" => DatabaseType.SqlServer,
+            _ => throw new InvalidDatabaseException("dbType is not valid.")
+        };
+    }
+
+    private QueryFactory CreatePostgresQueryFactory()
+    {
+        var connectionString = GetConnectionString(PostgresConnectionName);
+        var connection = new NpgsqlConnection(connectionString);
+
+        return new QueryFactory(connection, new PostgresCompiler(), QueryTimeoutSeconds);
+    }
+
+    private QueryFactory CreateSqlServerQueryFactory()
+    {
+        var connectionString = GetConnectionString(SqlServerConnectionName);
+        var connection = new SqlConnection(connectionString);
+
+        return new QueryFactory(connection, new SqlServerCompiler(), QueryTimeoutSeconds);
+    }
+
+    private string GetConnectionString(string connectionName)
+    {
+        var connectionString = _configuration.GetConnectionString(connectionName);
+
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException($"{connectionName} is not configured.");
         }
+
+        return connectionString;
     }
 }
