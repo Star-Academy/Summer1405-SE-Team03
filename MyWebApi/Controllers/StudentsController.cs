@@ -7,10 +7,10 @@ namespace MyWebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class StudentsController : ControllerBase
+public class StudentsController:ControllerBase
 {
     private readonly IDbService _dbService;
-
+    
     public StudentsController(IDbService dbService)
     {
         _dbService = dbService;
@@ -22,16 +22,12 @@ public class StudentsController : ControllerBase
         try
         {
             var queryFactory = _dbService.GetQueryFactory(db);
-            var students = queryFactory.Query("student").Get<Student>();
-            return Ok(students);
+            var selectedStudents = queryFactory.Query("student").Get();
+            return Ok(selectedStudents);
         }
-        catch (ArgumentException ex)
+        catch(Exception ex)
         {
-            return BadRequest(new { error = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { error = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 
@@ -41,24 +37,16 @@ public class StudentsController : ControllerBase
         try
         {
             var queryFactory = _dbService.GetQueryFactory(db);
-            var student = queryFactory.Query("student")
-                .Where("studentnumber", id)
-                .FirstOrDefault<Student>();
-
-            if (student == null)
+            var selectedStudents = queryFactory.Query("student").Where("studentnumber", id).FirstOrDefault<Student>();
+            if (selectedStudents == null)
             {
-                return NotFound(new { message = $"دانشجویی با شماره {id} پیدا نشد." });
+                return NotFound(new { message = $"Student {id} not found" });
             }
-
-            return Ok(student);
+            return Ok(selectedStudents);
         }
-        catch (ArgumentException ex)
+        catch(Exception ex)
         {
-            return BadRequest(new { error = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { error = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 
@@ -71,28 +59,21 @@ public class StudentsController : ControllerBase
             var affectedRows = queryFactory.Query("student").Insert(new
             {
                 studentnumber = student.StudentNumber,
-                firstname = student.FirstName,
+                firstname = student.FirstName, 
                 ismale = student.IsMale,
                 grade = student.Grade
             });
-
             if (affectedRows == 0)
             {
-                return StatusCode(500, new { message = "امکان افزودن رکورد وجود ندارد." });
+                return StatusCode(500 , "cant add record");
             }
-
             return CreatedAtAction(
-                nameof(GetById),
-                new { id = student.StudentNumber, db },
-                student);
+                nameof(GetById), 
+                new { id = student.StudentNumber, db = db }, student);
         }
-        catch (ArgumentException ex)
+        catch(Exception ex)
         {
-            return BadRequest(new { error = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { error = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 
@@ -106,25 +87,22 @@ public class StudentsController : ControllerBase
                 .Where("studentnumber", id)
                 .Update(new
                 {
-                    firstname = student.FirstName,
+                    firstname = student.FirstName, 
                     ismale = student.IsMale,
                     grade = student.Grade
                 });
 
             if (affectedRows == 0)
             {
-                return NotFound(new { message = $"دانشجویی با شماره {id} پیدا نشد." });
+                return NotFound($"Student {id} not found");
             }
 
-            return NoContent();
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
+            student.StudentNumber = id;
+            return Ok(student);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { error = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 
@@ -134,24 +112,16 @@ public class StudentsController : ControllerBase
         try
         {
             var queryFactory = _dbService.GetQueryFactory(db);
-            var deletedRows = queryFactory.Query("student")
-                .Where("studentnumber", id)
-                .Delete();
-
-            if (deletedRows == 0)
+            var deletedStudents = queryFactory.Query("student").Where("studentnumber", id).Delete();
+            if (deletedStudents == 0)
             {
-                return NotFound(new { message = $"دانشجویی با شماره {id} پیدا نشد." });
+                return NotFound($"Student {id} not found");
             }
-
             return NoContent();
         }
-        catch (ArgumentException ex)
+        catch(Exception ex)
         {
-            return BadRequest(new { error = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { error = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 }

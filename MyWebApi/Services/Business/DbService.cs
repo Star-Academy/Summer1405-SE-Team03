@@ -1,12 +1,13 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
 using SqlKata.Compilers;
+namespace MyWebApi.Services.Business;
+using MyWebApi.Services.Abstractions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using SqlKata.Execution;
 using MyWebApi.Services.Abstractions;
-
-namespace MyWebApi.Services.Business;
-
 public class DbService : IDbService
 {
     private readonly IConfiguration _configuration;
@@ -20,22 +21,35 @@ public class DbService : IDbService
     {
         if (string.IsNullOrWhiteSpace(dbType))
         {
-            throw new ArgumentException("پارامتر db مشخص نشده است.");
+            throw new ArgumentNullException("dbType is null or empty");
         }
-
-        return dbType.Trim().ToLower() switch
+        switch (dbType)
         {
-            "postgres" => new QueryFactory(
-                new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnection")),
-                new PostgresCompiler(),
-                30),
-
-            "sqlserver" => new QueryFactory(
-                new SqlConnection(_configuration.GetConnectionString("SqlServerConnection")),
-                new SqlServerCompiler(),
-                30),
-
-            _ => throw new ArgumentException($"دیتابیس '{dbType}' نامعتبر است. مقادیر مجاز: postgres یا sqlserver")
-        };
+            case "postgres":
+            {
+                var connectionString = _configuration.GetConnectionString("PostgresConnection");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("Postgres connection string not set");
+                }
+                var npgsqlConnection = new NpgsqlConnection(connectionString);
+                
+                var queryFactory = new QueryFactory(npgsqlConnection, new PostgresCompiler(), 30);
+                return queryFactory;
+            }
+            case "sqlserver":
+            {
+                var connectionString = _configuration.GetConnectionString("SqlServerConnection");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("Postgres connection string not set");
+                }
+                var sqlserverConnection = new SqlConnection(connectionString);
+                var queryFactory = new QueryFactory(sqlserverConnection, new SqlServerCompiler(), 30);
+                return queryFactory;
+            }
+            default:
+                throw new ArgumentOutOfRangeException("dbType is not valid");
+        }
     }
 }

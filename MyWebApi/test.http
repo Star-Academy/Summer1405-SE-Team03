@@ -21,7 +21,7 @@ Content-Type: application/json
 
 {
   "studentNumber": 40110001,
-  "firstName": "Asghar",
+  "firstName": "mehdi",
   "isMale": true,
   "grade": 18.5
 }
@@ -58,11 +58,11 @@ GET http://localhost:5052/api/students/40110002?db=sqlserver
 ### ==========================================
 
 # ویرایش دانشجو در PostgreSQL
-PUT http://localhost:5052/api/students/40110001?db=postgres
+PUT http://localhost:5052/api/students/104?db=postgres
 Content-Type: application/json
 
 {
-  "firstName": "AliReza",
+  "firstName": "Ahmad",
   "isMale": true,
   "grade": 19.75
 }
@@ -73,7 +73,7 @@ Content-Type: application/json
 ### ==========================================
 
 # حذف از PostgreSQL
-DELETE http://localhost:5052/api/students/40110001?db=postgres
+DELETE http://localhost:5052/api/students/0?db=postgres
 
 
 ### ==========================================
