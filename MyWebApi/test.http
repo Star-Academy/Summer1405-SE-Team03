@@ -1,0 +1,173 @@
+### 1. Get all students (PostgreSQL)
+GET http://localhost:5052/api/students?db=postgres
+
+### 2. Get all students (SQL Server)
+GET http://localhost:5052/api/students?db=sqlserver
+
+
+### 3. Create student - Success (PostgreSQL)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110001,
+  "firstName": "Mehdi",
+  "isMale": true,
+  "grade": 18.5
+}
+
+### 4. Create student - Success (SQL Server)
+POST http://localhost:5052/api/students?db=sqlserver
+Content-Type: application/json
+
+{
+  "studentNumber": 40110002,
+  "firstName": "Sara",
+  "isMale": false,
+  "grade": 19.25
+}
+
+### 5. Create student - Fail (Duplicate Student Number -> Expects 409 Conflict)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110001,
+  "firstName": "Mehdi Duplicate",
+  "isMale": true,
+  "grade": 15.0
+}
+
+### 6. Create student - Fail (Invalid Student Number <= 0 -> Expects 400 Bad Request)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": -5,
+  "firstName": "Ali",
+  "isMale": true,
+  "grade": 17.0
+}
+
+### 7. Create student - Fail (First Name > 50 characters -> Expects 400 Bad Request)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110003,
+  "firstName": "ThisIsAVeryLongNameThatExceedsTheFiftyCharacterLimitAllowedByTheDatabaseSchema",
+  "isMale": true,
+  "grade": 16.0
+}
+
+### 8. Create student - Fail (Grade > 20 -> Expects 400 Bad Request)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110004,
+  "firstName": "Reza",
+  "isMale": true,
+  "grade": 22.5
+}
+
+### 9. Create student - Fail (Grade < 0 -> Expects 400 Bad Request)
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110005,
+  "firstName": "Mina",
+  "isMale": false,
+  "grade": -2.0
+}
+
+
+### 10. Get student by ID (PostgreSQL)
+GET http://localhost:5052/api/students/40110001?db=postgres
+
+### 11. Get student by ID (SQL Server)
+GET http://localhost:5052/api/students/40110002?db=sqlserver
+
+
+### 12. Update student - Success (PostgreSQL)
+PUT http://localhost:5052/api/students/40110001?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "Ahmad",
+  "isMale": true,
+  "grade": 19.75
+}
+
+### 13. Update student - Fail (Invalid Route ID <= 0 -> Expects 400 Bad Request)
+PUT http://localhost:5052/api/students/0?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "Ahmad",
+  "isMale": true,
+  "grade": 19.75
+}
+
+### 14. Update student - Fail (First Name > 50 characters -> Expects 400 Bad Request)
+PUT http://localhost:5052/api/students/40110001?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "ThisIsAVeryLongNameThatExceedsTheFiftyCharacterLimitAllowedByTheDatabaseSchema",
+  "isMale": true,
+  "grade": 18.0
+}
+
+### 15. Update student - Fail (Grade > 20 -> Expects 400 Bad Request)
+PUT http://localhost:5052/api/students/40110001?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "Ahmad",
+  "isMale": true,
+  "grade": 25.0
+}
+
+### 16. Update student - Fail (Student Not Found -> Expects 404 Not Found)
+PUT http://localhost:5052/api/students/99999999?db=postgres
+Content-Type: application/json
+
+{
+  "firstName": "Ghost",
+  "isMale": true,
+  "grade": 15.0
+}
+
+
+### 17. Delete student - Success (PostgreSQL)
+DELETE http://localhost:5052/api/students/40110001?db=postgres
+
+### 18. Delete student - Fail (Student Not Found -> Expects 404 Not Found)
+DELETE http://localhost:5052/api/students/99999999?db=postgres
+
+
+### 19. Invalid database parameter (Expects 400 Bad Request)
+GET http://localhost:5052/api/students?db=oracle
+
+###
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110001,
+  "isMale": true,
+  "grade": 18
+}
+
+###
+POST http://localhost:5052/api/students?db=sqlserver
+Content-Type: application/json
+
+{
+  "studentNumber": 40110001,
+  "firstName": "Mehdi",
+  "isMale": true,
+  "grade": 15.0
+}

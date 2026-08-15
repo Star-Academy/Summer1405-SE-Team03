@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "MyNewProjectName": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "POSTGRES_CONNECTION": "Host=localhost;Port=5432;Database=mohaymen;Username=postgres;Password=postgres",
+        "SQLSERVER_CONNECTION": "Server=localhost,5500;Database=mohaymen;User Id=sa;Password=Your_strong_Password123;TrustServerCertificate=True;"
+      }
+    }
+  }
+}
