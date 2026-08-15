@@ -54,13 +54,13 @@ public class StudentRepository : IStudentRepository
                     grade = student.Grade
                 });
         }
-        catch (PostgresException ex) when (ex.SqlState == "23505")
+        catch (PostgresException ex) when (ex.SqlState == DbErrorCodes.Postgres.UniqueViolation)
         {
             throw new DuplicateResourceException(
                 $"Student with number {student.StudentNumber} already exists."
             );
         }
-        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        catch (SqlException ex) when (ex.Number is DbErrorCodes.SqlServer.ViolationOfUniqueConstraint or DbErrorCodes.SqlServer.CannotInsertDuplicateKeyRow)
         {
             throw new DuplicateResourceException(
                 $"Student with number {student.StudentNumber} already exists."
