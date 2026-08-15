@@ -24,6 +24,10 @@ internal sealed class SqlServerQueryParameterBinder : IQueryParameterBinder
 
         foreach (var parameter in query.WhereConditions)
         {
+            if (parameter.Value is null or DBNull)
+            {
+                continue;
+            }
             var paramName = _databaseSpecificSyntaxFormatter.GetParameterName(index);
             resultQueryParameter.Add(new QueryParameter(paramName, parameter.Value));
             index++;

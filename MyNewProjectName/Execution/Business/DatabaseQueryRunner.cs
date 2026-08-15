@@ -12,7 +12,6 @@ internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly IDbCommandFactory _dbCommandFactory;
     private readonly IQueryParameterBinder _queryParameterBinder;
-    private readonly IQueryResultPresenter _queryResultPresenter;
 
     public DatabaseQueryRunner(
         IDbConnectionFactory dbConnectionFactory,
@@ -23,17 +22,16 @@ internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
         _dbConnectionFactory = dbConnectionFactory ?? throw new ArgumentNullException(nameof(dbConnectionFactory));
         _dbCommandFactory = dbCommandFactory ?? throw new ArgumentNullException(nameof(dbCommandFactory));
         _queryParameterBinder = queryParameterBinder ?? throw new ArgumentNullException(nameof(queryParameterBinder));
-        _queryResultPresenter = queryResultPresenter ?? throw new ArgumentNullException(nameof(queryResultPresenter));
     }
 
-    public void QueryRunner(CompiledQuery compiledQuery, Query originalQuery)
+    public IDataReader QueryRunner(CompiledQuery compiledQuery, Query originalQuery)
     {
         try
         {
-            using var connection = _dbConnectionFactory.CreateConnection();
+             var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
             
-            using var command = _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection);
+             var command = _dbCommandFactory.CreateCommand(compiledQuery.SqlQuery, connection);
 
             var parameters = _queryParameterBinder.BindParameters(originalQuery);
             foreach (var param in parameters)
@@ -44,8 +42,8 @@ internal sealed class DatabaseQueryRunner : ICompiledQueryRunner
                 command.Parameters.Add(dbParam);
             }
 
-            using var reader = command.ExecuteReader();
-            _queryResultPresenter.PresentResults(reader);
+            var reader = command.ExecuteReader();
+            return reader;
         }
         catch (DbException dbEx)
         {

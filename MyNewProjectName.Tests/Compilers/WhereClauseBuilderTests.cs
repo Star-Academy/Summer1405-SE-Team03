@@ -109,7 +109,7 @@ public class WhereClauseBuilderTests
         var query = new Query().Where("firstname", null!);
 
         var processedResult = new ProcessedWhereConditions(
-            new List<string> { "\"firstname\" = $1" }
+            new List<string> { "\"firstname\" IS NULL" }
         );
 
         _whereConditionProcessorSubstitute.Process(query.WhereConditions).Returns(processedResult);
@@ -118,7 +118,7 @@ public class WhereClauseBuilderTests
         var result = _sut.Build(query);
 
         // Assert
-        result.SqlText.Should().Be(" WHERE \"firstname\" = $1");
+        result.SqlText.Should().Be(" WHERE \"firstname\" IS NULL");
     }
 
     [Fact]

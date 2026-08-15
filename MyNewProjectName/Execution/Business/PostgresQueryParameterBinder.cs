@@ -24,6 +24,10 @@ internal sealed class PostgresQueryParameterBinder : IQueryParameterBinder
 
         foreach (var parameter in query.WhereConditions)
         {
+            if (parameter.Value is null or DBNull)
+            {
+                continue;
+            }
             var bindName = _databaseSpecificSyntaxFormatter.GetParameterName(index);
             resultQueryParameter.Add(new QueryParameter(bindName, parameter.Value));
             index++;

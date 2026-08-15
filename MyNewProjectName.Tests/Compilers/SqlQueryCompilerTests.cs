@@ -146,12 +146,12 @@ public class SqlQueryCompilerTests
 
         _selectClauseBuilderSubstitute.Build(query).Returns("SELECT *");
         _fromClauseBuilderSubstitute.Build(query).Returns(" FROM \"student\"");
-        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(" WHERE \"firstname\" = $1"));
+        _whereClauseBuilderSubstitute.Build(query).Returns(new WhereClauseResult(" WHERE \"firstname\" IS NULL"));
 
         // Act
         var result = _sut.Compile(query);
 
         // Assert
-        result.SqlQuery.Should().Be("SELECT * FROM \"student\" WHERE \"firstname\" = $1");
+        result.SqlQuery.Should().Be("SELECT * FROM \"student\" WHERE \"firstname\" IS NULL");
     }
 }
