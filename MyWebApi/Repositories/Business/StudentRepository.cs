@@ -37,15 +37,6 @@ public class StudentRepository : IStudentRepository
             .FirstOrDefaultAsync<Student>();
     }
 
-    public async Task<bool> ExistsAsync(int studentNumber, string? db)
-    {
-        using var queryFactory = _dbService.GetQueryFactory(db);
-
-        return await queryFactory
-            .Query(StudentDbConstants.TableName)
-            .Where(StudentDbConstants.StudentNumberColumn, studentNumber)
-            .ExistsAsync();
-    }
 
     public async Task<int> InsertAsync(Student student, string? db)
     {

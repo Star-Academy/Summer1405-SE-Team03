@@ -50,15 +50,6 @@ public class StudentService : IStudentService
             throw new BadRequestException("Student data is required.");
         }
 
-        var isDuplicate = await _studentRepository.ExistsAsync(request.StudentNumber, db);
-
-        if (isDuplicate)
-        {
-            throw new DuplicateResourceException(
-                $"Student with number {request.StudentNumber} already exists."
-            );
-        }
-
         var student = request.ToEntity();
 
         var insertedRows = await _studentRepository.InsertAsync(student, db);

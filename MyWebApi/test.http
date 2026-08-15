@@ -150,3 +150,24 @@ DELETE http://localhost:5052/api/students/99999999?db=postgres
 
 ### 19. Invalid database parameter (Expects 400 Bad Request)
 GET http://localhost:5052/api/students?db=oracle
+
+###
+POST http://localhost:5052/api/students?db=postgres
+Content-Type: application/json
+
+{
+  "studentNumber": 40110001,
+  "isMale": true,
+  "grade": 18
+}
+
+###
+POST http://localhost:5052/api/students?db=sqlserver
+Content-Type: application/json
+
+{
+  "studentNumber": 40110001,
+  "firstName": "Mehdi",
+  "isMale": true,
+  "grade": 15.0
+}
