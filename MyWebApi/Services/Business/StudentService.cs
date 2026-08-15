@@ -48,10 +48,6 @@ public class StudentService : IStudentService
             throw new BadRequestException("Student data is required.");
         }
 
-        EnsureValidStudentNumber(request.StudentNumber);
-        EnsureValidFirstName(request.FirstName);
-        EnsureValidGrade(request.Grade);
-
         var isDuplicate = await _studentRepository.ExistsAsync(request.StudentNumber, db);
 
         if (isDuplicate)
@@ -80,15 +76,11 @@ public class StudentService : IStudentService
         UpdateStudentRequest request,
         string? db)
     {
-        EnsureValidStudentNumber(id);
 
         if (request is null)
         {
             throw new BadRequestException("Student data is required.");
         }
-
-        EnsureValidFirstName(request.FirstName);
-        EnsureValidGrade(request.Grade);
 
         var student = request.ToEntity(id);
 
@@ -115,28 +107,5 @@ public class StudentService : IStudentService
 
         _logger.LogInformation("Student {StudentNumber} deleted.", id);
     }
-
-    private static void EnsureValidStudentNumber(int studentNumber)
-    {
-        if (studentNumber <= 0)
-        {
-            throw new BadRequestException("Student number must be greater than zero.");
-        }
-    }
-
-    private static void EnsureValidFirstName(string? firstName)
-    {
-        if (!string.IsNullOrWhiteSpace(firstName) && firstName.Length > 50)
-        {
-            throw new BadRequestException("First name cannot exceed 50 characters.");
-        }
-    }
-
-    private static void EnsureValidGrade(decimal grade)
-    {
-        if (grade is < 0 or > 20)
-        {
-            throw new BadRequestException("Grade must be between 0 and 20.");
-        }
-    }
+    
 }
