@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MyWebApi.Dtos.Student;
+namespace MyWebApi.Dtos.Student.Request;
 
 public class UpdateStudentRequest
 {

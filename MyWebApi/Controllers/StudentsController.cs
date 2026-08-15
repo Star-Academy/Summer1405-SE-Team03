@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyWebApi.Dtos.Student;
+using MyWebApi.Dtos.Student.Request;
+using MyWebApi.Dtos.Student.Response;
 using MyWebApi.Services.Abstractions;
 
 namespace MyWebApi.Controllers;

@@ -1,4 +1,6 @@
 using MyWebApi.Dtos.Student;
+using MyWebApi.Dtos.Student.Request;
+using MyWebApi.Dtos.Student.Response;
 using MyWebApi.Models;
 
 namespace MyWebApi.Mapping;

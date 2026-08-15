@@ -1,4 +1,4 @@
-namespace MyWebApi.Dtos.Student;
+namespace MyWebApi.Dtos.Student.Response;
 
 public class StudentResponse
 {
